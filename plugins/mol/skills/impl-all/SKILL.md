@@ -1,20 +1,21 @@
 ---
-description: Batch-implement a chain of specs from start to finish. Given a spec prefix, discovers all matching specs in `.claude/specs/` sorted by numeric suffix, runs `/mol:impl` on each non-interactively, and auto-commits between specs. Thin orchestrator — all gates, TDD, simplify, and verdict logic lives in `/mol:impl`. Never stops to ask questions.
+description: Batch-implement a chain of specs from start to finish. Given a spec prefix, discovers all matching specs in `.claude/specs/` sorted by numeric suffix, then hands the chain to Claude Code's `/goal` built-in so iteration persists across turns until every spec reaches a terminal status. Each spec gets `/mol:impl` + `/mol:commit`; all gating, TDD, simplify, and verdict logic lives in `/mol:impl`. Never stops to ask questions.
 argument-hint: "<spec-prefix>"
 ---
 
 # /mol:impl-all — Batch Spec Chain Driver
 
-Drive an entire spec chain (`<base>-01-<phase>`, `<base>-02-<phase>`, …) by iterating `/mol:impl` on each spec in order, committing between specs. All gating, testing, simplifying, and status advancement is `/mol:impl`'s job — this skill only discovers the chain and keeps it moving.
+Drive a spec chain (`<base>-01-<phase>`, `<base>-02-<phase>`, …) to completion by handing the iteration to Claude Code's `/goal` built-in. The skill itself only discovers the chain, validates it, and constructs the completion condition; `/goal` handles cross-turn persistence, live progress (elapsed / turns / tokens), and termination. All gating, testing, simplifying, and status advancement remains `/mol:impl`'s job.
 
 ```
 /mol:impl-all morse-bond
 → finds morse-bond-01-potential, morse-bond-02-gradient, morse-bond-03-optimization
-→ /mol:impl 01 → /mol:commit → /mol:impl 02 → /mol:commit → /mol:impl 03 → /mol:commit
-→ reports chain verdict
+→ /goal "for each spec in chain, run /mol:impl then /mol:commit; stop when all are terminal"
+→ /goal keeps Claude working across turns until completion condition is met
+→ skill prints final verdict table
 ```
 
-**Never asks questions.** Fully autonomous.
+**Never asks questions.** Fully autonomous — the `/goal` substrate keeps the work going across turns; the skill itself never loops in-place.
 
 ---
 
@@ -37,30 +38,50 @@ Print the chain:
   03-optimization   status: approved
 ```
 
-Any spec with `status: draft` → refuse and stop (*"approve draft specs first: <list>"*).
+Any spec with `status: draft` → refuse and stop (*"approve draft specs first: <list>"*). Any spec already at `done` or `code-complete` is included in the chain table but skipped during the `/goal` step (the completion condition treats it as already-terminal).
 
-### 2. Drive the chain
+### 2. Hand off to `/goal`
 
-For each spec, in sorted order:
+Issue a single `/goal` invocation whose **completion condition** is the chain reaching terminal status across all specs. Construct it from the discovered chain — do not hard-code spec names. Template:
 
 ```
-═══ [mol:impl-all] 2/3: morse-bond-02-gradient ═══
+/goal Drive spec chain <prefix> to completion.
+
+Plan:
+  For each spec in this order, run `/mol:impl <slug>` and then `/mol:commit`:
+    - <slug-01>
+    - <slug-02>
+    - <slug-03>
+    …
+
+Per-spec rules:
+  - `/mol:impl` owns every gate (stage gate, science gate, scope classification,
+    TDD, simplify, acceptance criteria, status advancement). Do not duplicate.
+  - After `/mol:impl` exits, advance based on the spec's terminal state:
+      • done            → `/mol:commit -m "feat(<base>): implement <phase> (<NN>/<total>)"`,
+                          then move to the next spec
+      • code-complete   → `/mol:commit` with whatever message `/mol:impl` parked it under,
+                          then move to the next spec
+      • approved / in-progress (no advance) → STOP the goal; do not skip to the next spec
+
+Completion condition (any of):
+  - Every spec in the chain is at status `done` or `code-complete`, AND the final
+    verdict table has been printed (see step 3 of /mol:impl-all).
+  - A spec failed to advance — stop, do not progress further.
+
+Constraints:
+  - Never ask the operator a question.
+  - Never edit specs directly; only `/mol:impl` may advance status.
+  - Never reorder the chain.
 ```
 
-Invoke `/mol:impl <slug>`. `/mol:impl` owns all guardrails (stage gate, science gate, scope classification, TDD, simplify, acceptance criteria, status advancement). Do not duplicate them here.
+`/goal` keeps Claude working across turns until the completion condition is met. Its overlay panel shows elapsed time, turns, and token usage — the skill does not re-implement progress reporting.
 
-After `/mol:impl` completes, check the result:
+### 3. Final verdict (printed as part of satisfying `/goal`)
 
-- Spec `status: done` (deleted by `/mol:impl`) → record done, run `/mol:commit` with message `feat(<base>): implement <phase> (<NN>/<total>)`.
-- Spec `status: code-complete` → record parked, run `/mol:commit`, continue to next spec.
-- Spec still `in-progress` or `approved` (didn't advance) → `/mol:impl` hit a blocker. Stop the chain.
+Once every spec is terminal (or the chain has stopped), print the verdict table. This emission is part of `/goal`'s completion condition — without it, `/goal` keeps running.
 
-### 3. Report
-
-Show one row per spec with its terminal status. For every spec at
-`code-complete`, attribute the parking reason to a specific evaluator
-so the operator knows what to run next (or whether `/mol:close --manual`
-is appropriate).
+Show one row per spec with its terminal status. For every spec at `code-complete`, attribute the parking reason to a specific evaluator so the operator knows what to run next (or whether `/mol:close --manual` is appropriate).
 
 ```
 ═══ [mol:impl-all] chain verdict ═══
@@ -72,8 +93,7 @@ is appropriate).
   2 done, 1 parked, 0 failed
 ```
 
-After the table, if any spec parked, print the chain-level **closing
-recipe** once (don't repeat per spec):
+After the table, if any spec parked, print the chain-level **closing recipe** once (don't repeat per spec):
 
 ```
 PARKED specs require runtime-evaluator verification before they
@@ -94,13 +114,17 @@ is unset):
   are met; the audit trail lands in the commit message.
 ```
 
-Skip the recipe entirely if no spec parked (chain reached done end-to-end).
+Skip the recipe entirely if no spec parked (chain reached `done` end-to-end).
+
+End-of-skill one-line summary: `/mol:impl-all: <N> done, <M> parked, <K> failed; chain <prefix>` (or `BLOCKED: <reason>` if step 1 / step 2 refused).
 
 ---
 
 ## Guardrails
 
-- **Never ask questions.** Autonomous batch mode — drive forward, report at end.
-- **Don't duplicate `/mol:impl`.** All gates, TDD, simplify, acceptance, and status logic belongs to `/mol:impl`. This skill only iterates and commits.
-- **Stop on stall.** If `/mol:impl` doesn't advance a spec's status, stop the chain — later specs may depend on it.
-- **Commit every spec.** Each spec gets its own checkpoint so the chain is reviewable mid-flight.
+- **Never ask questions.** Autonomous batch mode — `/goal` drives across turns; the skill reports at end.
+- **Don't duplicate `/mol:impl`.** All gates, TDD, simplify, acceptance, and status logic belongs to `/mol:impl`. This skill only discovers, hands off to `/goal`, and reports.
+- **Don't write the loop into the skill body.** `/goal` is the loop substrate. The skill issues *one* `/goal` invocation and exits its own procedure; iteration lives at the runtime layer.
+- **Stop on stall.** The `/goal` completion condition treats "spec did not advance" as a stop — later specs may depend on it.
+- **Commit every spec.** Each spec gets its own checkpoint (per the per-spec rules embedded in the `/goal` body) so the chain is reviewable mid-flight.
+- **Print the verdict.** The final verdict table is part of `/goal`'s completion condition; without it the goal keeps running.
