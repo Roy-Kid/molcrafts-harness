@@ -1,5 +1,5 @@
 ---
-description: Free-form design / improvement / scientific-insight discussion that drives toward convergence and either hands the agreed direction to `/mol:spec` or discards the thread. Use for exploratory threads (vs `/mol:spec` for already-clear requirements or `/mol:note` for decided rules); read-only; supports Chinese and English.
+description: Free-form design / improvement / scientific-insight discussion that drives toward convergence and either hands the agreed direction to `/mol:spec` or discards the thread. Use for exploratory threads (vs `/mol:spec` for already-clear requirements, `/mol:grill` for hardening an already-formed plan, or `/mol:note` for decided rules); read-only; supports Chinese and English.
 argument-hint: "<topic or question>"
 ---
 
@@ -7,7 +7,7 @@ argument-hint: "<topic or question>"
 
 Read CLAUDE.md → parse `mol_project:` (`$META`).
 
-Conversational skill for working through design trade-offs, improvement ideas, or scientific insights *before* a spec. Two exit doors — **converge** (hand off to `/mol:spec`) or **discard** (leave no trace). Distinct from `/mol:spec` (requirement already clear) and `/mol:note` (captures *decided* rules).
+Conversational skill for working through design trade-offs, improvement ideas, or scientific insights *before* a spec. Two exit doors — **converge** (hand off to `/mol:spec`) or **discard** (leave no trace). Distinct from `/mol:spec` (requirement already clear), `/mol:grill` (hardens a plan you *already have* — grill needs a concrete plan, discuss explores *whether / what*), and `/mol:note` (captures *decided* rules).
 
 ## Procedure
 

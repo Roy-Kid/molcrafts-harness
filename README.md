@@ -13,7 +13,7 @@ without re-deriving the rules.
 claude-plugin/
 ├── .claude-plugin/marketplace.json   # marketplace registry
 ├── plugins/
-│   ├── mol/                          # 21 workflow skills + 17 single-axis agents
+│   ├── mol/                          # 25 workflow skills + 17 single-axis agents
 │   │   ├── .claude-plugin/plugin.json
 │   │   ├── README.md
 │   │   ├── rules/
@@ -23,7 +23,7 @@ claude-plugin/
 │   │   │   ├── evaluator-protocol.md # planner/generator/evaluator contract
 │   │   │   ├── large-spec-split.md   # auto-split rule for oversized specs
 │   │   │   └── stage-policy.md       # mol_project.stage behavior matrix
-│   │   ├── skills/                   # 21 SKILL.md (incl. bootstrap, impl-all, map, simplify, web)
+│   │   ├── skills/                   # 25 SKILL.md (incl. bootstrap, grill, impl-all, map, simplify, web)
 │   │   └── agents/                   # 17 agent .md (incl. librarian, spec-writer, playwright-evaluator)
 │   └── mol-plugin/                   # 4 marketplace-maintenance skills
 │       ├── .claude-plugin/plugin.json

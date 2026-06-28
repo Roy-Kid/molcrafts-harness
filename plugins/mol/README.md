@@ -67,7 +67,7 @@ shims for public-signature changes; `maintenance` makes
 `/mol:fix` proceeds). Full matrix in
 [`rules/stage-policy.md`](rules/stage-policy.md).
 
-The 22 skills group by intent. Each row shows what it does, when to
+The 25 skills group by intent. Each row shows what it does, when to
 reach for it, and a one-line example.
 
 ### 0 — Harness lifecycle
@@ -82,6 +82,7 @@ reach for it, and a one-line example.
 | Skill | What | When | Example |
 |---|---|---|---|
 | `/mol:discuss <topic>` | Free-form design / improvement / scientific-insight discussion. Frames the topic, drives toward convergence with an explicit per-turn `Convergence pulse`, and exits one of two ways: **converge** → packages a one-paragraph requirement and tells the user to invoke `/mol:spec` on it; **discard** → leaves no artifacts. Hard 8-turn cap. Read-only. Pairs upstream of `/mol:spec`. | When the requirement isn't yet clear enough for `/mol:spec` and you want to think it through with the agent. | `/mol:discuss should /mol:web own remote dev servers?` |
+| `/mol:grill <plan>` | Relentless one-question-at-a-time interview that hardens an already-formed plan before building. Walks the decision tree dependency-first, recommends an answer for every question, and self-answers from the codebase where it can; tracks state with a per-turn `Grill pulse`. Exits one of two ways: **converge** → packages a sharpened plan + Decisions log and tells the user to invoke `/mol:spec` on it; **redirect** → drops back to `/mol:discuss` when the plan dissolves, leaving no artifacts. Read-only. The bridge between `/mol:discuss` and `/mol:spec`. | When you already have a plan and want it stress-tested before writing the spec. | `/mol:grill cache force results per-frame keyed on neighbor-list hash` |
 | `/mol:spec` | Natural-language requirement → structured `<slug>.md` + binding `<slug>.acceptance.md` under `.claude/specs/`. Bulk drafting + self-validation (sections / atomic tasks / RED-before-GREEN / Files↔Tasks cross-reference) is delegated to the `spec-writer` subagent so parent context stays small. Skill orchestrates conflict detection and persistence — both files are written immediately, no approval prompt. Detects conflicts with existing specs and updates them in place when superseded. | Before starting any non-trivial implementation. | `/mol:spec add Morse bond potential to molpy` |
 | `/mol:litrev` | Literature + reference-implementation review (gated on `mol_project.science.required`). Returns equations, validation targets, open questions. | Before specifying a domain-critical feature. | `/mol:litrev Nose-Hoover thermostat` |
 
@@ -139,6 +140,7 @@ the standard GitHub fork convention: `origin` = your fork, `upstream`
 
 ```
 /mol:litrev <topic>           # only if science.required and you need refs
+/mol:grill <plan>             # optional: stress-test the plan one question at a time before speccing
 /mol:spec <feature>           # → <slug>.md + <slug>.acceptance.md, written immediately
 /mol:impl <slug>              # TDD; ticks tasks; auto-runs /mol:simplify + /mol:close
 /mol:web <slug>               # ad hoc, non-binding UI verification (optional)
