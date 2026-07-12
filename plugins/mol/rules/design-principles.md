@@ -138,6 +138,11 @@ The two layers must not collapse. A skill must not contain expert
 knowledge that belongs in an agent. An agent must not contain workflow
 choreography that belongs in a skill.
 
+Which model runs each layer — the two conversation modes
+(advisor / orchestration) and the opus / sonnet / haiku agent tiers —
+is defined in `plugins/mol/rules/model-policy.md`; in orchestration
+mode the main loop never authors production source.
+
 ## 3. Why This Split
 
 1. **Reusability.** Multiple skills delegate to the same agent (the
