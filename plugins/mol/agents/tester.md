@@ -27,6 +27,7 @@ Read-only audit of existing test suite (or scope from caller). Inspect:
 - Tests deterministic (seeded RNG, no wall-clock, no unsandboxed I/O)?
 - FP assertions use right tolerance column (exact vs numerical)?
 - Coverage gaps named symbol-by-symbol?
+- `regressions/` examples present for delivered features, public-API-only, and reference-anchored (see § Regression examples)?
 
 Output = gap report only — no test files written. Promote caller back to `/mol:impl` (new features) or `/mol:fix` (regressions) to fill gaps in write-mode.
 
@@ -55,6 +56,15 @@ Every new symbol covered in (drop those that don't apply):
 4. **Integration** — symbol composes with documented neighbors.
 5. **Immutability** — if project documents immutable data flow, assert input unchanged after op.
 6. **Domain validation** — only when `mol_project.science.required: true`. Compare against analytical value, published benchmark, or conservation law.
+
+### Regression examples (`regressions/`)
+
+Delivery artifact distinct from unit tests — authored in write-mode when the delegated task targets `regressions/`. One file per spec slug (`regressions/<slug>.py` / `.rs` / …) at repo root, **never** inside the unit-test tree.
+
+- **Library-external.** Import the package exactly as an installed user would — public API only; no internal/private modules, no test fixtures or conftest helpers, no `sys.path` tricks.
+- **End-to-end and minimal.** Smallest input that drives the feature from public entry point to observable result; one scenario per file.
+- **Textbook-anchored.** Spec declares physics → reproduce a canonical literature case; cite the source (DOI / textbook + equation number) in a comment and hard-code the published reference values in the assertion, using the tolerance table above. No literature basis → assert the spec's documented expected output.
+- **Standalone-runnable.** Direct invocation (`python regressions/<slug>.py`, `cargo run --example <slug>`, …) exits non-zero on mismatch; also collectable by the project's test runner so `regressions/` runs as part of the regression suite.
 
 ### Test-framework heuristics
 

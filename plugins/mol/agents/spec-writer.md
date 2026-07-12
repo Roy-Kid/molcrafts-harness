@@ -18,6 +18,7 @@ Drafts spec body + binding acceptance contract for `/mol:spec`. Caller handles u
   - `independent` (new spec, no related work) — most common
   - `supersede:<slug>` — refining/replacing; caller passes old spec body; reconcile Tasks (keep `[x]` for valid done, restore `[ ]` with `(rework: <why>)` for redo, remove invalidated, add new)
 - `interaction_points` — closest existing pattern + new public API / data-model / cross-layer dependency from Step 4.
+- `librarian_report` — `librarian`'s four-section advisory (Reuse candidates tagged `reuse` / `generalize` / `pattern`, Recommended placement, Closest pattern, Confidence). May be absent only when the caller noted "blueprint refresh deferred".
 - `slug` — kebab-case slug (`morse-bond`, `nose-hoover`, `amber-prmtop-reader`).
 
 ## Procedure
@@ -28,10 +29,10 @@ Sections (in order, all mandatory):
 
 - **Summary** — one paragraph; user-visible outcome. Plain prose, no bullets.
 - **Domain basis** — equations, refs with DOI/arXiv, units. Required iff `$META.science.required` AND spec declares physics. Fold `scientist_output` refs verbatim if provided.
-- **Design** — entities touched, new symbols, lifecycle / ownership. Not a Summary restatement.
+- **Design** — entities touched, new symbols, lifecycle / ownership. Not a Summary restatement. Ends with a **Reuse decision** sub-block resolving *every* `librarian_report` reuse candidate: `reuse <symbol>` (spec calls it) / `generalize <symbol>` (spawns a "Generalize …" task promoting the existing implementation to serve both callers) / `new — <one-line why neither fits>`. Never design a symbol that reimplements a candidate tagged `reuse` or `generalize`; new-symbol naming, construction, and error handling follow the report's Closest pattern so the new code reads like the existing code.
 - **Files to create or modify** — bulleted concrete file paths (no globs). Mark new files: `(new)` after path.
 - **Tasks** — see § 2; mandatory; every file in Files-to-create-or-modify must appear in ≥1 Tasks item.
-- **Testing strategy** — happy path, edge cases, and (if `$META.science.required`) domain validation enumerated.
+- **Testing strategy** — happy path, edge cases, and (if `$META.science.required`) domain validation enumerated. Also names the spec's **regression example**: one minimal end-to-end script under `regressions/` (repo root — never inside the unit-test tree) exercising the feature through the public API only, as a library-external user would. Physics declared → a textbook / literature case with citation and reference values (fold from `scientist_output`); otherwise a canonical minimal use-case with its expected output.
 - **UI verification** — *optional; only when the spec touches a frontend.* Bulleted, observable browser checks for ad-hoc `/mol:web` runs. **Non-binding**: these never become acceptance criteria and never gate `done`.
 - **Out of scope** — present even if "none". Empty section is a smell — if "none", confirm alternatives were considered.
 
@@ -45,6 +46,7 @@ Format:
 - [ ] Write failing tests for <component> (<path/to/test_file>)
 - [ ] Implement <symbol> in <path>
 - [ ] Add docstring per <doc.style> with units
+- [ ] Add regression example regressions/<slug>.<ext> (end-to-end, public API only)
 - [ ] Verify against <validation case>
 - [ ] Run full check + test suite
 ```
@@ -52,6 +54,8 @@ Format:
 Rules:
 
 - Each item **concrete, atomic, checkable** (one observable change).
+- A `generalize` verdict in Design's Reuse decision spawns a "Generalize `<symbol>` in `<path>` to cover `<new case>`" task **instead of** a parallel "Implement" task.
+- Exactly one "Add regression example `regressions/<slug>.<ext>`" task per spec, after the implementation tasks and before the final full-suite task.
 - Aim 4–10 tasks. Per `plugins/mol/rules/large-spec-split.md`, return `Status: split-needed` if **any** of: Tasks > **10**, Files crosses > 1 architectural layer / package / crate per `$META.arch.style`, or spec introduces a new top-level concept (LARGE per `/mol:impl` Step 1). Caller auto-splits — proposed cut must be sound.
 - Verbs first ("Write…", "Implement…", "Verify…").
 - **RED-before-GREEN** — every "Write failing tests for X" precedes its "Implement X".
@@ -88,6 +92,11 @@ Required for cross-references:
 - [ ] Every file in **Files to create or modify** appears in ≥1 Tasks item.
 - [ ] Domain refs (DOI / arXiv) present iff `$META.science.required` and physics declared.
 
+Required for reuse & regression:
+
+- [ ] Every `librarian_report` reuse candidate resolved in Design's Reuse decision; no Task reimplements a candidate tagged `reuse` or `generalize`.
+- [ ] Exactly one regression-example task targeting `regressions/`, with a matching `type: runtime` acceptance criterion (§ 4).
+
 ### 4. Propose acceptance criteria
 
 For every Task and every "done"-bearing Testing-strategy behavior, propose criterion per `plugins/mol/rules/evaluator-protocol.md`:
@@ -107,6 +116,7 @@ Rules:
 
 - `id` starts at `ac-001` and increments. Supersede → restart at `ac-001` (spec body rewritten → fresh contract).
 - Pick **narrowest type that suffices**. Split into multiple if it spans categories.
+- Always emit one `type: runtime` criterion for the regression example — `pass_when` names the `regressions/<slug>.<ext>` script and the reference values / tolerance it must reproduce. Keep it `runtime` (verified by `/mol:impl` at delivery), **not** `scientific` — the example lives in this repo's `regressions/`, not the external bench repo.
 - **Never emit `type: ui_runtime`.** Browser-verifiable behaviors go into the spec body's **UI verification** section instead — non-binding, verified ad hoc by `/mol:web`, never gating `done`.
 - `pass_when` is the binding bar — third party verifies yes/no without rereading spec.
 - `status: pending` on every fresh criterion. **Never emit `verified` or `failed`** — only `/mol:impl` (for `code`/`runtime`) and runtime evaluator skills (for their type) write those, per `evaluator-protocol.md` § *Field semantics*. Supersede/refine regenerates the block — every `id` resets to `pending` even if old spec had `verified`.

@@ -69,6 +69,8 @@ First **Write failing tests** task → delegate to `tester` agent. Required cate
 
 ### 2b. Implement (GREEN)
 
+Task targets `regressions/` (the spec's end-to-end regression example) → it is a test artifact: delegate to `tester` (write-mode, § Regression examples in its prompt), run the example standalone, tick on pass. `implementer` never writes it.
+
 For each remaining task:
 1. Delegate to `implementer` agent with: spec path, the task line, the RED test reference from 2a (command in `$META.build.test_single` form), the spec's Files section as scope, and the layer from 1d.
 2. `verdict: green` → run `$META.build.test_single` yourself to confirm (never trust the self-report), then **tick that task's box** — ticking stays here; `implementer` never ticks.
@@ -85,7 +87,7 @@ MEDIUM/LARGE: after impl tasks, re-delegate to `architect` for post-impl layer c
 
 ## 3. Verify & simplify
 
-Run in parallel: `$META.build.check` + `$META.build.test` (full suite). MEDIUM/LARGE: delegate to `documenter` for docstrings per `$META.doc.style`.
+Run in parallel: `$META.build.check` + `$META.build.test` (full suite) + the spec's `regressions/` example(s) standalone. A failing regression example blocks finalize exactly like a failing test — the feature is not delivered until the end-to-end example reproduces its reference values. MEDIUM/LARGE: delegate to `documenter` for docstrings per `$META.doc.style`.
 
 Invoke `/mol:simplify` on touched files. **Mandatory.** `/mol:simplify` decides: delete legacy (`experimental`) / shim (`stable`) / migration-note (`beta`) / leave (`maintenance`). Runs its own build/test gate; reverts on regression.
 

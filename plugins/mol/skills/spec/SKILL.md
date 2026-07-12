@@ -23,7 +23,7 @@ Derive kebab-case slug. State in one sentence.
 **Domain & placement** — run in parallel where possible:
 - Physics + `$META.science.required: true` → delegate to `scientist` for equations/references. Capture verbatim.
 - Glob for relevant files; flag new public API, cross-layer deps.
-- Consult `librarian` (reads `.claude/notes/architecture.md`) for reuse candidates + recommended placement. If `librarian` returns `stale: true`: invoke `architect` (inventory mode) → `/mol:map` (user-confirmed) → re-consult `librarian`. If user defers `/mol:map`, note "blueprint refresh deferred" and proceed.
+- Consult `librarian` (reads `.claude/notes/architecture.md` + runs a targeted source scan). **Mandatory for every spec — drafting never starts without this codebase scan.** Returns reuse candidates tagged `reuse` / `generalize` / `pattern` + recommended placement; `spec-writer` must resolve each candidate in the Design's Reuse decision — a spec that reimplements an existing capability instead of reusing or generalizing it is invalid. If `librarian` returns `stale: true`: invoke `architect` (inventory mode) → `/mol:map` (user-confirmed) → re-consult `librarian`. If user defers `/mol:map`, note "blueprint refresh deferred" and proceed.
 
 ### 2. Delegate drafting to `spec-writer`
 
@@ -47,7 +47,7 @@ Persist immediately — **no approval prompt, no waiting**:
    ```
    Chain → one entry per sub-spec. Supersede → update in place.
 
-Then show spec body + acceptance exactly as written. Call out: librarian reuse candidates (first), criteria from Testing strategy, UI checks recorded in the spec body's **UI verification** section (never acceptance criteria), items deliberately not turned into criteria, supersede diff if any.
+Then show spec body + acceptance exactly as written. Call out: librarian reuse candidates and how the Design's Reuse decision resolved each (first), criteria from Testing strategy, UI checks recorded in the spec body's **UI verification** section (never acceptance criteria), items deliberately not turned into criteria, supersede diff if any.
 
 Post-persist tweaks from the user → apply in place. Material design changes → re-invoke `spec-writer` (supersede) and overwrite.
 
