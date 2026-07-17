@@ -3,7 +3,7 @@
   "name": "mol-plugin",
   "displayName": "Mol Plugin",
   "version": "0.10.3",
-  "description": "Maintenance toolkit for the MolCrafts marketplace \u2014 scaffold, audit, smoke-test, and release skills and plugins.",
+  "description": "Maintenance toolkit for the MolCrafts marketplace \u2014 scaffold skills, unified check (structure + content + install smoke), and release.",
   "author": {
     "name": "MolCrafts"
   },
