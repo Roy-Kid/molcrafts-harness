@@ -9,7 +9,7 @@ having to re-derive the rules.
 
 These principles are enforced by `/mol:bootstrap`. Run it against
 any project that has been bootstrapped with the mol harness to check
-compliance. (The `claude-plugin/` marketplace repo itself has no
+compliance. (The `molcrafts-harness/` marketplace repo itself has no
 harness — use `/mol-plugin:check` for its self-audit.)
 
 ## 0. Harness Engineering

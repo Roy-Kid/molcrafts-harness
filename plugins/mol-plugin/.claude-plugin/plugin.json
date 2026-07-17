@@ -2,13 +2,13 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "mol-plugin",
   "displayName": "Mol Plugin",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "Maintenance toolkit for the MolCrafts marketplace \u2014 scaffold, audit, smoke-test, and release skills and plugins.",
   "author": {
     "name": "MolCrafts"
   },
-  "homepage": "https://github.com/MolCrafts/claude-plugin",
-  "repository": "https://github.com/MolCrafts/claude-plugin",
+  "homepage": "https://github.com/MolCrafts/molcrafts-harness",
+  "repository": "https://github.com/MolCrafts/molcrafts-harness",
   "license": "MIT",
   "keywords": [
     "plugin-development",

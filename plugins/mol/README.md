@@ -24,22 +24,22 @@ molnex without per-project forks.
 ### Claude Code (primary)
 
 ```
-/plugin marketplace add https://github.com/MolCrafts/claude-plugin
+/plugin marketplace add https://github.com/MolCrafts/molcrafts-harness
 /plugin install mol@molcrafts
 ```
 
 For local development:
-`/plugin marketplace add <path-to-claude-plugin-checkout>`.
+`/plugin marketplace add <path-to-molcrafts-harness-checkout>`.
 
 ### Codex
 
 ```bash
-codex plugin marketplace add MolCrafts/claude-plugin
+codex plugin marketplace add MolCrafts/molcrafts-harness
 codex plugin add mol@molcrafts
 ```
 
 For local development:
-`codex plugin marketplace add <path-to-claude-plugin-checkout>`.
+`codex plugin marketplace add <path-to-molcrafts-harness-checkout>`.
 Restart Codex and test updated skills in a new thread.
 
 ## Four-zone layering (active vs passive)

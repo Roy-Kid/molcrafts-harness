@@ -2,13 +2,13 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "mol",
   "displayName": "Mol",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "description": "Project workflow toolkit \u2014 27 skills + 20 single-axis agents organized around the planner\u2192generator\u2192evaluator harness pattern. Adapts per project via mol_project frontmatter.",
   "author": {
     "name": "MolCrafts"
   },
-  "homepage": "https://github.com/MolCrafts/claude-plugin",
-  "repository": "https://github.com/MolCrafts/claude-plugin",
+  "homepage": "https://github.com/MolCrafts/molcrafts-harness",
+  "repository": "https://github.com/MolCrafts/molcrafts-harness",
   "license": "MIT",
   "keywords": [
     "molecular",

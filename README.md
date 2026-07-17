@@ -13,7 +13,7 @@ without re-deriving the rules.
 ## Layout
 
 ```
-claude-plugin/
+molcrafts-harness/
 ├── .github/workflows/validate-plugins.yml # stdlib-only metadata CI
 ├── .claude-plugin/marketplace.json   # marketplace registry
 ├── .agents/plugins/marketplace.json  # native Codex marketplace registry
@@ -55,7 +55,7 @@ claude-plugin/
 ### Claude Code (primary)
 
 ```
-/plugin marketplace add https://github.com/MolCrafts/claude-plugin
+/plugin marketplace add https://github.com/MolCrafts/molcrafts-harness
 /plugin install mol@molcrafts
 ```
 
@@ -69,7 +69,7 @@ skills.
 ### Codex
 
 ```bash
-codex plugin marketplace add MolCrafts/claude-plugin
+codex plugin marketplace add MolCrafts/molcrafts-harness
 codex plugin add mol@molcrafts
 ```
 
