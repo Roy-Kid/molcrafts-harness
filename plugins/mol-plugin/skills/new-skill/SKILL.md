@@ -26,7 +26,7 @@ Form: `<plugin>:<skill-name> [<description>]`.
 
 Validate:
 
-- `<plugin>` ∈ `mol`, `molexp`, `mol-plugin` (or another existing dir under `plugins/`).
+- `<plugin>` ∈ `mol`, `molexp`, `molq`, `mol-plugin` (or another existing dir under `plugins/`).
 - `<skill-name>` is kebab-case, no spaces, not already taken.
 - Description, if given, is one sentence.
 
@@ -38,6 +38,7 @@ Read one existing SKILL.md under the same plugin. Default models:
 
 - `mol` → `plugins/mol/skills/note/SKILL.md`
 - `molexp` → `plugins/molexp/skills/adopt-workspace/SKILL.md`
+- `molq` → `plugins/molq/skills/jobs/SKILL.md`
 - `mol-plugin` → `plugins/mol-plugin/skills/check/SKILL.md`
 
 Match structure (not content): frontmatter (`name` + `description` + `argument-hint`), Codex adapter directive, H1 `/<plugin>:<skill>` heading, one-paragraph purpose, numbered Procedure, optional Guardrails, optional Idempotency, Output format.

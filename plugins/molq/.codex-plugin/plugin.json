@@ -1,0 +1,35 @@
+{
+  "name": "molq",
+  "version": "0.11.0",
+  "description": "molq job lifecycle via molmcp: dashboard, logs, opt-in submit/cancel for local and HPC schedulers.",
+  "author": {
+    "name": "MolCrafts"
+  },
+  "homepage": "https://github.com/MolCrafts/molcrafts-harness",
+  "repository": "https://github.com/MolCrafts/molcrafts-harness",
+  "license": "MIT",
+  "keywords": [
+    "molq",
+    "hpc",
+    "slurm",
+    "job-queue",
+    "molcrafts"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Molq",
+    "shortDescription": "molq job lifecycle via molmcp",
+    "longDescription": "List jobs, read logs, and opt-in submit/cancel through the molmcp molq provider.",
+    "developerName": "MolCrafts",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "List my molq jobs.",
+      "Submit this command as a molq job.",
+      "Show logs for this job id."
+    ]
+  }
+}

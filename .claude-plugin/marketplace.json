@@ -32,6 +32,19 @@
       ]
     },
     {
+      "name": "molq",
+      "source": "./plugins/molq",
+      "description": "molq job lifecycle via molmcp \u2014 list/status/logs, opt-in submit and cancel for local/SLURM/PBS/LSF.",
+      "version": "0.11.0",
+      "keywords": [
+        "molq",
+        "hpc",
+        "slurm",
+        "job-queue",
+        "molcrafts"
+      ]
+    },
+    {
       "name": "mol-plugin",
       "source": "./plugins/mol-plugin",
       "description": "Maintenance toolkit for the MolCrafts marketplace \u2014 scaffold skills, unified check (structure + content + install smoke), and release.",

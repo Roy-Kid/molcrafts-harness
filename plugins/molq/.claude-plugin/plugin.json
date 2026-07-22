@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "molq",
+  "displayName": "Molq",
+  "version": "0.11.0",
+  "description": "molq job lifecycle via molmcp \u2014 list/status/logs, opt-in submit and cancel for local/SLURM/PBS/LSF.",
+  "author": {
+    "name": "MolCrafts"
+  },
+  "homepage": "https://github.com/MolCrafts/molcrafts-harness",
+  "repository": "https://github.com/MolCrafts/molcrafts-harness",
+  "license": "MIT",
+  "keywords": [
+    "molq",
+    "hpc",
+    "slurm",
+    "job-queue",
+    "molcrafts"
+  ]
+}

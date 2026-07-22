@@ -37,6 +37,11 @@ molcrafts-harness/
 │   │   ├── .codex-plugin/plugin.json
 │   │   ├── README.md
 │   │   └── skills/
+│   ├── molq/                         # molq job lifecycle via molmcp (jobs/submit/cancel)
+│   │   ├── .claude-plugin/plugin.json
+│   │   ├── .codex-plugin/plugin.json
+│   │   ├── README.md
+│   │   └── skills/
 │   └── mol-plugin/                   # marketplace-maintenance skills (counts live in manifests)
 │       ├── .claude-plugin/plugin.json
 │       ├── .codex-plugin/plugin.json
@@ -54,6 +59,7 @@ molcrafts-harness/
 |---|---|
 | [`mol`](plugins/mol/README.md) | Day-to-day **code** project work (planner→generator→evaluator harness): bootstrap, spec, impl, review, git chain, …. Adapts via `mol_project:` frontmatter. |
 | [`molexp`](plugins/molexp/README.md) | **Experiment data** workspace tooling: `/molexp:adopt-workspace` lifts legacy result folders into molexp's Workspace→Project→Experiment→Run layout. |
+| [`molq`](plugins/molq/README.md) | **Job queue** via molmcp: `/molq:jobs` (list/status/logs/queue), `/molq:submit`, `/molq:cancel` (submit/cancel need `MOLMCP_MOLQ_SUBMIT=1`). |
 | [`mol-plugin`](plugins/mol-plugin/README.md) | Maintaining this marketplace: scaffold skills, unified `/mol-plugin:check`, and cut releases. |
 
 ## Install
@@ -64,6 +70,7 @@ molcrafts-harness/
 /plugin marketplace add https://github.com/MolCrafts/molcrafts-harness
 /plugin install mol@molcrafts
 /plugin install molexp@molcrafts   # optional — experiment data workspaces
+/plugin install molq@molcrafts     # optional — job queue via molmcp
 ```
 
 `mol-plugin` is only needed if you are developing the plugins

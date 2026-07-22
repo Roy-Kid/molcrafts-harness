@@ -29,6 +29,18 @@
       "category": "Productivity"
     },
     {
+      "name": "molq",
+      "source": {
+        "source": "local",
+        "path": "./plugins/molq"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
       "name": "mol-plugin",
       "source": {
         "source": "local",

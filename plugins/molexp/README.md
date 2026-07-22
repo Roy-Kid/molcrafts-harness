@@ -28,4 +28,5 @@ Requires `molexp` importable in the environment (`pip install molexp`).
 |---|---|
 | `mol` | Code project harness (spec / impl / review / git) |
 | `molexp` | **Experiment data** workspace adoption |
+| `molq` | Job queue lifecycle (molmcp) |
 | `mol-plugin` | This marketplace's scaffolding and release |
