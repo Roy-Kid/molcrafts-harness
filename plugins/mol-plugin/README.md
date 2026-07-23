@@ -61,7 +61,7 @@ Harness publish uses the same PR-first chain as ecosystem packages
 then tag. Never direct-push branches to the org default.
 
 ```
-/mol-plugin:new-skill mol:bench "Microbenchmark hot paths"
+/mol-plugin:new-skill mol:perf "Microbenchmark hot paths"
 # author the skill body
 /mol-plugin:check              # structure + content + smoke
 /mol-plugin:check --static-only  # faster: no Claude/Codex install

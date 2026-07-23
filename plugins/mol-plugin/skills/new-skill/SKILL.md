@@ -8,7 +8,7 @@ argument-hint: "<plugin:skill-name> [<one-line description>]"
 
 # /mol-plugin:new-skill — Skill Scaffold
 
-Scaffold a new skill in this marketplace (e.g. `mol:bench`, `mol-plugin:audit-templates`).
+Scaffold a new skill in this marketplace (e.g. `mol:perf`, `mol-plugin:audit-templates`).
 
 Write surface: `plugins/<plugin>/skills/<skill-name>/SKILL.md` + one appended row in `plugins/<plugin>/README.md`'s skills table. Reuse the plugin's existing `skills/CODEX.md`; never create a second Codex copy of the workflow. Never touch existing skills, plugin manifests, or marketplace metadata.
 

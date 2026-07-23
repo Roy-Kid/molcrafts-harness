@@ -157,7 +157,7 @@ All hold:
 1. Mark `status: code-complete`.
 2. Invoke `/mol:commit` (same as done path). BLOCK → drop to `in-progress`, stop.
 3. List the criteria left at `pending`, **grouped by evaluator owed** per the routing table in `plugins/mol/rules/evaluator-protocol.md` § *Type → owed evaluator*.
-4. **Auto-evaluators then auto-close.** For each owed evaluator on pending non-`code`/`runtime` criteria, invoke it once (`/mol:bench`, `/mol:web`, …) when configured. Then invoke `/mol:close <slug>` (default mode) — no prompt. `/mol:close` re-checks, auto-attests remaining C criteria with `verified_by: agent-auto` when no evaluator can flip them, and deletes artifacts on success.
+4. **Auto-evaluators then auto-close.** For each owed evaluator on pending non-`code`/`runtime` criteria, invoke it once (`/mol:perf`, `/mol:web`, …) when configured. Then invoke `/mol:close <slug>` (default mode) — no prompt. `/mol:close` re-checks, auto-attests remaining C criteria with `verified_by: agent-auto` when no evaluator can flip them, and deletes artifacts on success.
 5. If close still fails (failed criteria / commit gate) → stop hard with the failure. **Never** ask the operator to close or pass `--manual`.
 6. Never delete spec/acceptance/INDEX directly on this path — deletion is `/mol:close`'s job.
 

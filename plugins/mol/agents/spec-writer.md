@@ -106,7 +106,7 @@ For every Task and every "done"-bearing Testing-strategy behavior, propose crite
 - id: ac-001
   summary: <≤80 chars, imperative or stative>
   type: code | runtime | scientific | performance | docs
-  evaluator_hint: <optional, e.g. "marker: morse" selector for mol:bench>
+  evaluator_hint: <optional, e.g. "marker: morse" selector for mol:perf>
   pass_when: |
     <single observable condition; names a fixture, file,
     threshold, or visible state>

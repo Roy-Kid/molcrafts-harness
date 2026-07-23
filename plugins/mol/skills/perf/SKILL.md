@@ -1,16 +1,20 @@
 ---
-name: bench
-description: "External benchmark evaluator — verifies `type: scientific` and `type: performance` criteria from `<slug>.acceptance.md` by running the project's separate `bm_*` pytest-benchmark suite (e.g. `bm-molrs-molpy/`), which pairs each kernel with an equality check against a user-named reference library (freud, scipy, LAMMPS, …). The bench repo owns the test bodies, reference imports, tolerances, and result storage; this skill selects tests per criterion, runs pytest, reports the verdict, and updates `acceptance.md`. Skips cleanly when no bench repo is configured."
+name: perf
+description: "External performance/scientific evaluator — verifies `type: scientific` and `type: performance` criteria from `<slug>.acceptance.md` by running the project's separate `bm_*` pytest-benchmark suite (e.g. `bm-molrs-molpy/`), which pairs each kernel with an equality check against a user-named reference library (freud, scipy, LAMMPS, …). The bench repo owns the test bodies, reference imports, tolerances, and result storage; this skill selects tests per criterion, runs pytest, reports the verdict, and updates `acceptance.md`. Skips cleanly when no bench repo is configured. Replaces the former mol:bench skill name (slash command retired)."
 argument-hint: "<spec-slug> [<criterion-id>]"
 ---
 
 > **Codex:** Read `../CODEX.md` before executing this shared workflow. Claude Code follows the workflow directly.
 
-# /mol:bench — External Benchmark Evaluator
+# /mol:perf — External Performance & Scientific Evaluator
 
-Runtime sibling of `/mol:web`. Where `/mol:web` drives a UI through a browser MCP, `/mol:bench` runs the project's **external** bench suite — a separate `bm_*` repo with paired perf + correctness tests against a reference impl — and writes per-criterion verdicts back into `acceptance.md`.
+Runtime sibling of `/mol:web`. Where `/mol:web` drives a UI through a browser MCP, `/mol:perf` runs the project's **external** bench suite — a separate `bm_*` repo with paired perf + correctness tests against a reference impl — and writes per-criterion verdicts back into `acceptance.md`.
 
 The bench repo owns the comparison logic. This skill does not invent tolerances or compute deltas; it runs pytest in the bench repo, reads pytest's exit code + pytest-benchmark JSON, and reports.
+
+> **Rename:** this skill replaces the former `mol:bench` name (slash command retired). Same procedure and
+> `mol_project.bench.*` config keys (the external suite is still a bench
+> repo). Orchestrators should call `/mol:perf`.
 
 ## Detect
 
@@ -56,7 +60,7 @@ Don't impose a determinism gate — the bench repo's own `pytest.ini_options` al
 Emit one block per evaluator-protocol shape (`plugins/mol/rules/evaluator-protocol.md`):
 
 ```markdown
-## /mol:bench — <slug>
+## /mol:perf — <slug>
 
 | Criterion | Verdict | Evidence |
 |-----------|---------|----------|
@@ -75,7 +79,7 @@ Then update `acceptance.md` for each handled criterion per `plugins/mol/rules/ev
 End with one-line summary:
 
 ```
-/mol:bench <slug>: 4 criteria evaluated — 2 pass, 1 fail, 1 skip. Bench data under <bench.repo>/.benchmarks/. Re-run `/mol:impl <slug>` to advance to `done` (fix the failure first).
+/mol:perf <slug>: 4 criteria evaluated — 2 pass, 1 fail, 1 skip. Bench data under <bench.repo>/.benchmarks/. Re-run `/mol:impl <slug>` to advance to `done` (fix the failure first).
 ```
 
 ## Project configuration
@@ -117,6 +121,6 @@ For this skill to verify a criterion, the spec author (`/mol:spec`) should produ
 
 - **Read-only on source.** Never edits implementation code, bench tests, or the bench repo. A failing comparison is fixed by `/mol:fix` in the target project (real regression) or by hand in the bench repo (wrong tolerance / test bug) — not here.
 - **Write-narrow on `acceptance.md`.** Only `status` + `last_checked` on just-evaluated criteria, per evaluator-protocol § *Ledger write-back*. Never edit spec body or other fields.
-- **The bench repo is authoritative.** Tolerances, reference imports, fixtures, and machine-name partitioning live in the bench repo. This skill does not override them or shell out to other benchmark frameworks. (A C++ / Rust-native suite would need its own evaluator skill — `/mol:bench` is pytest-benchmark-only by design.)
+- **The bench repo is authoritative.** Tolerances, reference imports, fixtures, and machine-name partitioning live in the bench repo. This skill does not override them or shell out to other benchmark frameworks. (A C++ / Rust-native suite would need its own evaluator skill — `/mol:perf` is pytest-benchmark-only by design.)
 - **Self-skip, don't crash.** Missing `bench.repo`, missing `pytest`, or missing `evaluator_hint` on a criterion → clean exit / `⏭ skip` with the specific gap named.
 - **No auto-loop.** Failed verdict does not trigger a re-run after a code change; loop-back belongs to `/mol:impl` or the user.

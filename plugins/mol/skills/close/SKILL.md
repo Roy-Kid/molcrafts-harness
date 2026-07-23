@@ -44,7 +44,7 @@ Otherwise, **agent-driven clearance** (no user menu):
 
 1. Group **C** by owed evaluator (`plugins/mol/rules/evaluator-protocol.md`).
 2. Auto-invoke each available evaluator once:
-   - `scientific` / `performance` → `/mol:bench <slug>` when `mol_project.bench.repo` is set
+   - `scientific` / `performance` → `/mol:perf <slug>` when `mol_project.bench.repo` is set
    - UI checks → `/mol:web <slug>` when Playwright MCP / dev config available
    - `docs` → run a best-effort docs presence check (paths exist / docstrings present); flip when objectively met
 3. Re-read acceptance. Remaining **C**:
