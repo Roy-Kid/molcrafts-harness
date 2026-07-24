@@ -13,3 +13,6 @@ venv/
 
 # OS metadata
 .DS_Store
+
+.tox/
+.venv/
