@@ -132,5 +132,5 @@ dangling read.
 
 `<emoji> file:line — message` lines (🚨/🔴/🟡/🟢), sorted by severity, each
 with a one-line fix direction. `Suggested agent:` route — patches go to
-`/mol:fix`; API-shape changes to `/mol:spec`. End with one line:
+`/mol:debug`; API-shape changes to `/mol:spec`. End with one line:
 `APPROVE` | `REQUEST CHANGES` | `BLOCK`.

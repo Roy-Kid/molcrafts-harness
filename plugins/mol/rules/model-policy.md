@@ -20,7 +20,7 @@ session-model changes.
   in the deliverable is the top model's own; reviewer agents feed it
   findings.
 - Orchestration skills: `/mol:spec`, `/mol:impl`, `/mol:impl-all`,
-  `/mol:fix`, `/mol:refactor`, `/mol:docs`, `/mol:simplify`, and the
+  `/mol:debug`, `/mol:refactor`, `/mol:docs`, `/mol:simplify`, and the
   git chain. The main loop plans, routes, gates, and verifies.
 
 Invoker class (user vs model — who may *fire* the skill) is orthogonal
@@ -58,7 +58,7 @@ decisions only it can make.
 | Tier (`model:`) | Agents | Why |
 |---|---|---|
 | `opus` | architect, scientist, compute-scientist, debugger, security-reviewer, optimizer, pm, librarian, undergrad, user, web-design, spec-writer, tester, documenter, implementer, ffi-guard | judgment: design trade-offs, diagnosis, adversarial reasoning, artifact authorship |
-| `sonnet` | ci-guard, playwright-evaluator, reviewer, janitor | mechanical: run tools, aggregate findings, pattern-match against fixed catalogs |
+| `sonnet` | ci-guard, reviewer, janitor | mechanical: run tools, aggregate findings, pattern-match against fixed catalogs |
 | `haiku` | `/mol:impl-all` § 2b completion evaluator (prose-dispatched — no agent file) | binary ledger read against a fixed schema |
 
 `model: inherit` is not used under `plugins/mol/agents/` — every

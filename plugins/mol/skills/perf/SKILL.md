@@ -8,7 +8,7 @@ argument-hint: "<spec-slug> [<criterion-id>]"
 
 # /mol:perf — External Performance & Scientific Evaluator
 
-Runtime sibling of `/mol:web`. Where `/mol:web` drives a UI through a browser MCP, `/mol:perf` runs the project's **external** bench suite — a separate `bm_*` repo with paired perf + correctness tests against a reference impl — and writes per-criterion verdicts back into `acceptance.md`.
+The runtime evaluator for `scientific` and `performance` criteria. `/mol:perf` runs the project's **external** bench suite — a separate `bm_*` repo with paired perf + correctness tests against a reference impl — and writes per-criterion verdicts back into `acceptance.md`.
 
 The bench repo owns the comparison logic. This skill does not invent tolerances or compute deltas; it runs pytest in the bench repo, reads pytest's exit code + pytest-benchmark JSON, and reports.
 
@@ -119,7 +119,7 @@ For this skill to verify a criterion, the spec author (`/mol:spec`) should produ
 
 ## Guardrails
 
-- **Read-only on source.** Never edits implementation code, bench tests, or the bench repo. A failing comparison is fixed by `/mol:fix` in the target project (real regression) or by hand in the bench repo (wrong tolerance / test bug) — not here.
+- **Read-only on source.** Never edits implementation code, bench tests, or the bench repo. A failing comparison is fixed by `/mol:debug` in the target project (real regression) or by hand in the bench repo (wrong tolerance / test bug) — not here.
 - **Write-narrow on `acceptance.md`.** Only `status` + `last_checked` on just-evaluated criteria, per evaluator-protocol § *Ledger write-back*. Never edit spec body or other fields.
 - **The bench repo is authoritative.** Tolerances, reference imports, fixtures, and machine-name partitioning live in the bench repo. This skill does not override them or shell out to other benchmark frameworks. (A C++ / Rust-native suite would need its own evaluator skill — `/mol:perf` is pytest-benchmark-only by design.)
 - **Self-skip, don't crash.** Missing `bench.repo`, missing `pytest`, or missing `evaluator_hint` on a criterion → clean exit / `⏭ skip` with the specific gap named.

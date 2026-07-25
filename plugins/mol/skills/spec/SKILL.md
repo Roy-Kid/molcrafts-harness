@@ -50,7 +50,7 @@ Persist immediately — **no approval prompt, no waiting**:
    ```
    Chain → one entry per sub-spec. Supersede → update in place.
 
-Then show spec body + acceptance exactly as written. Call out: librarian reuse candidates and how the Design's Reuse decision resolved each (first), criteria from Testing strategy, UI checks recorded in the spec body's **UI verification** section (never acceptance criteria), items deliberately not turned into criteria, supersede diff if any.
+Then show spec body + acceptance exactly as written. Call out: librarian reuse candidates and how the Design's Reuse decision resolved each (first), criteria from Testing strategy, items deliberately not turned into criteria, supersede diff if any.
 
 Tell the user: *"persisted — now entering `/mol:grilling` (spec-audit) before ready-for-impl."* Spec is on disk as `approved`, but Step 3.5 may supersede it.
 
@@ -86,7 +86,6 @@ End with one-line summary after impl-all returns (or after park).
 
 - **Chinese input** → `spec-writer` produces body in Chinese; frontmatter keys, INDEX entry, and Tasks verb-prefixes stay English for downstream tooling.
 - **Drafting is delegated** to `spec-writer` to keep parent context free for conversation. Triage, persistence, INDEX upkeep, and post-persist supersede stay here; first persist is automatic — never wait for approval. See `plugins/mol/rules/agent-design.md`.
-- **UI-runtime checks never become acceptance criteria.** They live in the spec body's **UI verification** section (non-binding); `/mol:web` verifies them ad hoc and they never park a spec at `code-complete`.
 - **Always auto-invoke `/mol:grilling` after persist.** Do not hand the user a "ready for impl" F2 before the audit settles.
 - **After grill settles clean (or supersede applied clean):** auto-invoke `/mol:impl-all <slug-or-prefix>` so implementation runs end-to-end without a second human kick. Parked grill redirect → do not impl.
 - **Spec lifecycle** (`draft` → `approved` → `in-progress` → `code-complete` → `done`) is defined in `plugins/mol/rules/evaluator-protocol.md`. `grilled: true` is advisory metadata, not a lifecycle state.

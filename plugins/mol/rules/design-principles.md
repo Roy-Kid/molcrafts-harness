@@ -36,7 +36,7 @@ style:
 
 - Discovering an anti-pattern, pre-existing failure, or broken
   invariant in the working surface → **prioritize fix or hard-stop
-  with a route** (`/mol:fix` / `/mol:refactor` / supersede). Never
+  with a route** (`/mol:debug` / `/mol:refactor` / supersede). Never
   ignore, baseline-away, or paper over with skips / weaker tests.
 - "Stay in scope" and "minimal diff" do **not** license knowingly
   leaving rot you have already seen. Unmentioned discoveries are a
@@ -143,7 +143,7 @@ user ──▶ /skill  (workflow + orchestration, user-invocable)
        tools (Read, Grep, Glob, Bash, sometimes Write/Edit)
 ```
 
-- **Skill** = a *verb* the user types (`/mol:impl`, `/mol:fix`). Owns
+- **Skill** = a *verb* the user types (`/mol:impl`, `/mol:debug`). Owns
   the *procedure*: scope assessment, ordering, parallel fan-out, when
   to delegate, how to aggregate. A skill is short — it reads
   CLAUDE.md, classifies the request, calls one or more agents,
@@ -372,7 +372,8 @@ See Section 1.
 - **C2.** A skill that writes (specs, code, docs, tests, notes) must
   say so in its `description` frontmatter so the user knows what will
   change.
-- **C3.** Diagnose-only skills (`/mol:debug`) state explicitly that
+- **C3.** A skill's diagnose-only mode (`/mol:debug --diagnose-only`)
+  states explicitly that
   they never edit. Enforced in the skill's procedure, not just in the
   description.
 
@@ -392,8 +393,10 @@ See Section 1.
   fourth scheduling point and was added to plug the planning-phase
   visibility gap that produced duplicate modules and wrong-layer
   placement in large projects.
-- **W5.** Bug fixing is a separate, minimal loop (`/mol:debug` →
-  `/mol:fix`) not a degenerate case of `/mol:impl`.
+- **W5.** Bug fixing is a separate, minimal loop (`/mol:debug`:
+  reproduce → diagnose → patch → verify), not a degenerate case of
+  `/mol:impl`. It carries no spec gate and no acceptance ledger,
+  because a bug is a defect against already-agreed behavior.
 
 ### Output format (F)
 
@@ -471,7 +474,8 @@ tree. Output one finding per row: `<emoji> file:line — message` (🚨 /
 - [ ] Are read-only agents declared with read-only tools? Any
       unjustified Write/Edit? (C1)
 - [ ] Does each writing skill announce what it writes? (C2)
-- [ ] Are diagnose-only skills enforced in their procedure? (C3)
+- [ ] Are diagnose-only modes enforced in the procedure, not just
+      the description? (C3)
 
 ### Workflow
 
@@ -481,7 +485,8 @@ tree. Output one finding per row: `<emoji> file:line — message` (🚨 /
 - [ ] Do review skills fan out in parallel? (W3)
 - [ ] Are architecture checks scheduled at the three required points?
       (W4)
-- [ ] Are debug and fix kept as separate minimal loops? (W5)
+- [ ] Is bug fixing a minimal loop separate from the spec-gated
+      feature path? (W5)
 
 ### Output
 

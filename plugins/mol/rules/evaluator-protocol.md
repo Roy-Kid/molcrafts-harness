@@ -2,7 +2,7 @@
 
 Specifies the artifact and verdict shapes that connect the planner
 (`/mol:spec`), the generator (`/mol:impl`), and the runtime
-evaluators (`/mol:web`, `/mol:perf`, future `mol:numeric` / …).
+evaluators (`/mol:perf`, future `mol:numeric` / …).
 The protocol exists so the **driving flow** stays domain-neutral
 while runtime evaluators can be added per-domain without re-shaping
 the rest of the harness.
@@ -40,8 +40,8 @@ created: YYYY-MM-DD
 criteria:
   - id: ac-001
     summary: "<short title, ≤80 chars>"
-    type: code | runtime | ui_runtime | scientific | performance | docs
-    evaluator_hint: <optional, e.g. "mol:web">
+    type: code | runtime | scientific | performance | docs
+    evaluator_hint: <optional, e.g. "mol:perf">
     pass_when: "<single observable condition in plain prose>"
     status: pending | verified | failed     # default pending; updated by impl + evaluators
     last_checked: YYYY-MM-DD                # optional; written when status flips
@@ -73,11 +73,6 @@ out_of_scope:
     janitor) handle these.
   - `runtime` — requires executing code (test suite, CLI
     invocation, backend smoke).
-  - `ui_runtime` — **legacy (pre-2026-06).** `/mol:spec` no longer
-    emits this type; UI checks now live in the spec body's
-    `## UI verification` section, verified non-bindingly by
-    `/mol:web`. Existing criteria of this type remain valid and are
-    still verified (and ledger-updated) by `/mol:web`.
   - `scientific` — requires numerical comparison against reference
     data or analytical solution.
   - `performance` — requires a benchmark with a quantified
@@ -100,7 +95,7 @@ out_of_scope:
   - `verified` — most-recent verification passed. The criterion
     is "done"; nothing else has to happen for this criterion.
   - `failed` — most-recent verification ran and did not pass.
-    The user (or `/mol:fix`) acts on this.
+    The user (or `/mol:debug`) acts on this.
 
   Defaults to `pending` at spec creation. **Who writes it:**
   - `/mol:spec` writes initial `pending` for every criterion when
@@ -108,8 +103,8 @@ out_of_scope:
   - `/mol:impl` writes `verified` / `failed` for `code` and
     `runtime` criteria during Step 7 close-out, based on whether
     the traced test path is green.
-  - Runtime evaluator skills (`/mol:web`, `/mol:perf`,
-    future `mol:numeric` / …) write `verified` / `failed` for the
+  - Runtime evaluator skills (`/mol:perf`, future
+    `mol:numeric` / …) write `verified` / `failed` for the
     criterion `type` they handle, after each verification run.
 
   This is the one **explicit exception** to the "evaluator MUST
@@ -142,14 +137,14 @@ The spec moves through these statuses:
 | `draft`         | legacy — `/mol:spec` now persists directly at `approved`; a `draft` spec (pre-2026-06, or hand-written) still refuses `/mol:impl` until re-run through `/mol:spec` |
 | `approved`      | user signed off both files; ready for `/mol:impl`                                |
 | `in-progress`   | `/mol:impl` is mid-run; tasks ticking off                                        |
-| `code-complete` | every `code` / `runtime` criterion is `status: verified`; runtime-evaluator types (`scientific` / `performance` / `docs`, plus legacy `ui_runtime`) still `pending` — code work is done, runtime verification owed |
+| `code-complete` | every `code` / `runtime` criterion is `status: verified`; runtime-evaluator types (`scientific` / `performance` / `docs`) still `pending` — code work is done, runtime verification owed |
 | `done`          | every criterion is `status: verified`. **Only this status triggers deletion** of `<slug>.md`, `<slug>.acceptance.md`, and the INDEX entry |
 
 A spec with no runtime-evaluator-typed criteria skips
 `code-complete` — `/mol:impl` advances it directly from
 `in-progress` to `done` and deletes the artifacts immediately. A
 spec that *does* have such criteria parks at `code-complete`;
-running `/mol:perf` (or `/mol:web` for legacy `ui_runtime`)
+running `/mol:perf`
 flips the relevant criteria to `verified`; `/mol:close <slug>`
 then re-checks the ledger and advances to `done` only when all
 criteria are verified. `/mol:impl` and `/mol:impl-all` invoke
@@ -188,9 +183,8 @@ The skill reads:
 
 ### Self-skip when prerequisites are absent
 
-If the skill's prerequisites are missing (e.g. no
-browser-automation MCP for `/mol:web`, no benchmark harness
-configured for `/mol:perf`), the skill MUST exit cleanly
+If the skill's prerequisites are missing (e.g. no benchmark
+harness configured for `/mol:perf`), the skill MUST exit cleanly
 with a message naming what is missing — not crash and not pretend
 to verify. Detection happens up front, before any acceptance file
 is read.
@@ -241,9 +235,7 @@ attestation (`/mol:close --manual`) additionally writes
 ### Naming convention
 
 The skill SHOULD be `mol:<axis>` so orchestrators can find it by
-convention: `/mol:web` for legacy `ui_runtime` + spec-body UI
-verification, `/mol:perf` for
-`performance` and `scientific`. Each self-skips when its target
+convention: `/mol:perf` for `performance` and `scientific`. Each self-skips when its target
 type is not present in `acceptance.md`.
 
 ## Type → owed evaluator
@@ -256,7 +248,6 @@ completion evaluator, and `/mol:review`'s handoff suggestions:
 |---|---|---|
 | `performance`, `scientific` | `/mol:perf` | `/mol:close --manual` (e.g. `mol_project.bench.repo` unset) |
 | `docs` | human reviewer | `/mol:close --manual` |
-| legacy `ui_runtime` | `/mol:web` | `/mol:close --manual` |
 | `code`, `runtime` | re-run `/mol:impl` | — |
 | any criterion with `evaluator_hint:` | that evaluator (soft preference) | — |
 
@@ -264,7 +255,6 @@ completion evaluator, and `/mol:review`'s handoff suggestions:
 
 | Skill       | Handles `type`               | Prerequisite                                                                          |
 |-------------|------------------------------|---------------------------------------------------------------------------------------|
-| `mol:web`   | legacy `ui_runtime` criteria + non-binding spec-body `## UI verification` checks | A browser-automation MCP (Playwright MCP, claude-in-chrome, …) installed by the user  |
 | `mol:perf` | `scientific`, `performance`  | `mol_project.bench.repo` points at an installable pytest-benchmark `bm_*` repo (e.g. `bm-molrs-molpy/`); each criterion carries an `evaluator_hint` selector (`marker:` / `k:` / `path:`); reference libraries are deps of the bench repo, not of this skill |
 
 Add to this table when a new evaluator skill lands inside `mol`.

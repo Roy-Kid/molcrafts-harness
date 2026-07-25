@@ -38,4 +38,4 @@ Rules: problem + intuition first; define symbols before use; concrete example; `
 ## Guardrails
 
 - Never mix A/B. Mode B never auto from write chains.
-- Mode A behavior-preserving only; renames → `/mol:refactor` or `/mol:fix`.
+- Mode A behavior-preserving only; renames → `/mol:refactor` or `/mol:debug`.

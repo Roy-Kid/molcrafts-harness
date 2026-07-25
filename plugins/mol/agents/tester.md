@@ -1,6 +1,6 @@
 ---
 name: tester
-description: Write-mode RED unit tests under tests/ mirroring src/ (TestFooClass, single-function); analyze-mode audits layout/naming/e2e-in-tests/hard-coded regressions. Used by /mol:impl, /mol:fix, /mol:test. Never edits production code.
+description: Write-mode RED unit tests under tests/ mirroring src/ (TestFooClass, single-function); analyze-mode audits layout/naming/e2e-in-tests/hard-coded regressions. Used by /mol:impl, /mol:debug, /mol:test. Never edits production code.
 tools: Read, Grep, Glob, Bash, Write, Edit
 model: opus
 ---
@@ -13,7 +13,7 @@ RED → GREEN → REFACTOR. **Test artifacts only** — never production code.
 
 ## Modes
 
-**A — write** (`/mol:impl`, `/mol:fix`): failing unit tests first (or `regressions/` if task targets it). Run `$META.build.test_single`; confirm correct failure. Production = caller.
+**A — write** (`/mol:impl`, `/mol:debug`): failing unit tests first (or `regressions/` if task targets it). Run `$META.build.test_single`; confirm correct failure. Production = caller.
 
 **B — analyze** (`/mol:test`): read-only gaps — layout/naming, single-function scope, categories, determinism, FP tolerances, hard-coded regressions (no live third-party). No writes.
 

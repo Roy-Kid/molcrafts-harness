@@ -28,7 +28,7 @@ in `git-publish.md`).
 
 ### Fix loop (≤ 3 cycles)
 
-Parse failures → fix mechanical issues (`/mol:fix` / simplify / format) → re-run. Still red:
+Parse failures → fix mechanical issues (`/mol:debug` / simplify / format) → re-run. Still red:
 
 ```
 BLOCK PUSH — pre-commit still failing.

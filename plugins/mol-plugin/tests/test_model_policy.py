@@ -50,7 +50,6 @@ OPUS_AGENTS = {
 
 SONNET_AGENTS = {
     "ci-guard",
-    "playwright-evaluator",
     "reviewer",
     "janitor",
 }
@@ -173,17 +172,22 @@ class ModelPolicyTests(unittest.TestCase):
             "impl/SKILL.md § 2b must delegate GREEN to implementer.",
         )
 
-        fix = _read(SKILLS_DIR / "fix" / "SKILL.md")
+        debug = _read(SKILLS_DIR / "debug" / "SKILL.md")
         self.assertIn(
             "`implementer`",
-            fix,
-            "fix/SKILL.md Step 3 must delegate the patch to implementer.",
+            debug,
+            "debug/SKILL.md Step 3 must delegate the patch to implementer.",
         )
         self.assertIn(
             "do **not** re-delegate",
-            fix,
-            "fix/SKILL.md Step 2 must consume an existing debugger report "
+            debug,
+            "debug/SKILL.md Step 2 must consume an existing debugger report "
             "instead of re-running diagnosis.",
+        )
+        self.assertIn(
+            "--diagnose-only",
+            debug,
+            "debug/SKILL.md must preserve the read-only diagnose path.",
         )
 
         impl_all = _read(SKILLS_DIR / "impl-all" / "SKILL.md")

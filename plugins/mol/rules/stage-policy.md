@@ -1,7 +1,7 @@
 # Project Stage Policy
 
 A project's **lifecycle stage** controls how aggressive the writing
-skills (`/mol:impl`, `/mol:fix`, `/mol:refactor`, `/mol:simplify`)
+skills (`/mol:impl`, `/mol:debug`, `/mol:refactor`, `/mol:simplify`)
 and the static reviewers (`pm`, `janitor`, `architect`) are allowed
 to be when they touch existing code. The stage answers one question:
 **how much of the existing surface is the harness allowed to break,
@@ -90,7 +90,7 @@ The project is in long-term support: bug fixes, security patches,
 documentation corrections. No new features. No API changes. No
 cosmetic refactors.
 
-- `/mol:fix` is the only writing skill that proceeds normally. Its
+- `/mol:debug` is the only writing skill that proceeds normally. Its
   scope discipline tightens: a fix may not touch lines unrelated to
   the reproduction, may not introduce new abstractions, and may not
   rename anything (even local symbols) outside the immediate fix
@@ -154,5 +154,5 @@ to different severity at different stages per the matrix above.
 - It does not auto-bump the stage. Moving from `experimental` to
   `beta` (or `stable` to `maintenance`) is a deliberate user
   decision recorded in CLAUDE.md, not something the harness infers.
-- It does not exempt `/mol:fix` at any stage. A bug is a bug; fixing
+- It does not exempt `/mol:debug` at any stage. A bug is a bug; fixing
   it is always in scope.

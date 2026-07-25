@@ -340,7 +340,7 @@ in the surface you touch or depend on → **prioritize or hard-stop**:
 1. **Do not ignore** ("pre-existing, leave it"), skip-mark, weaken
    asserts, or land features on known rot.
 2. **Fix now** if local + stage-allowed; else **stop**, report
-   path:line, route `/mol:fix` / `/mol:refactor` / supersede.
+   path:line, route `/mol:debug` / `/mol:refactor` / supersede.
 3. **Name it** in the summary (found / fixed / blocking). Silence = process failure.
 
 Outranks "stay in scope" / "minimal diff" when those mean knowingly
@@ -395,7 +395,7 @@ leaving rot you already saw.
 
 For non-trivial work, prefer:
 1. plan (`/mol:spec` or free-form → discuss / grill)
-2. implement (`/mol:impl` or `/mol:fix`)
+2. implement (`/mol:impl` or `/mol:debug`)
 3. review (`/mol:review`)
 4. capture decisions (`/mol:note` — harness sync, not append-only)
 

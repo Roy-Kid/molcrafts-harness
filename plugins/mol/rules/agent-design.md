@@ -37,7 +37,6 @@ user-approval gate between drafting and persisting.
 | `tester` | test code (RED tests) | the produced test *is* the verification mechanism — running it is the gate. No external orchestration needed for the write itself. |
 | `implementer` | production source (one spec task / one fix patch) | the RED test written by `tester` *is* the gate for the write — the same mechanism that justifies `tester`'s write access; the calling skill still runs the full-suite gate and owns revert. |
 | `documenter` | docstrings + tutorials | docs don't change runtime behavior — zero behavioral risk. |
-| `playwright-evaluator` | screenshots / console / network logs | artifacts are evaluation by-products, not source-of-truth code. |
 
 #### Producer-return (no write tools)
 
@@ -60,18 +59,18 @@ revert, and cross-cutting judgment — that's skill-layer concerns.
 | Agent | Reviews | Write-mode counterpart skill |
 |---|---|---|
 | `architect` | module boundaries / layer rules | `/mol:refactor` (with architect pre/post check) |
-| `debugger` | failure root cause + fix recommendation | `/mol:fix` (applies the recommendation; debugger never patches) |
-| `optimizer` | perf anti-patterns | `/mol:fix` (perf-driven fix) |
-| `scientist` | equations / units / refs | `/mol:fix` (corrected math) or `/mol:spec` (refine derivation) |
-| `compute-scientist` | numerical stability / HPC | `/mol:fix` (with regression test from `tester`) |
+| `debugger` | failure root cause + fix recommendation | `/mol:debug` Step 3 (`implementer` applies the recommendation; debugger never patches) |
+| `optimizer` | perf anti-patterns | `/mol:debug` (perf-driven fix) |
+| `scientist` | equations / units / refs | `/mol:debug` (corrected math) or `/mol:spec` (refine derivation) |
+| `compute-scientist` | numerical stability / HPC | `/mol:debug` (with regression test from `tester`) |
 | `pm` | public-API ergonomics / breaking change | `/mol:refactor` (with deprecation path) |
-| `undergrad` | new-user friction | `/mol:docs` (Mode B tutorial) or `/mol:fix` (error message) |
+| `undergrad` | new-user friction | `/mol:docs` (Mode B tutorial) or `/mol:debug` (error message) |
 | `user` | doc-first learnability + cross-library composition (no glue) | `/mol:docs` (fix/complete docs) or `/mol:spec` (close a composition seam) |
-| `web-design` | visual / a11y / state coverage | `/mol:fix` (one fix per finding) |
-| `security-reviewer` | attack surface | `/mol:fix` (sanitize / parameterize / authorize) |
-| `ffi-guard` | FFI-boundary safety | `/mol:fix` (error-code path, handle conversion) or `/mol:spec` (API-shape change) |
+| `web-design` | visual / a11y / state coverage | `/mol:debug` (one fix per finding) |
+| `security-reviewer` | attack surface | `/mol:debug` (sanitize / parameterize / authorize) |
+| `ffi-guard` | FFI-boundary safety | `/mol:debug` (error-code path, handle conversion) or `/mol:spec` (API-shape change) |
 | `janitor` | hygiene / tech debt | **`/mol:simplify`** (the dedicated cleanup applier) |
-| `ci-guard` | CI parity | **`/mol:ci-sync`** (config parity repair) / `/mol:fix` / `/mol:impl` per the agent's `Suggested agent:` route |
+| `ci-guard` | CI parity | **`/mol:ci-sync`** (config parity repair) / `/mol:debug` / `/mol:impl` per the agent's `Suggested agent:` route |
 | `librarian` | spec-time placement + reuse consult (fixed advisory report) | n/a — advice consumed by `/mol:spec`; the blueprint it reads is refreshed by `/mol:map` |
 | `reviewer` | aggregator (findings → table + verdict) | n/a — itself a reviewer over reviewers |
 
@@ -105,9 +104,8 @@ require the orchestrator to ask "did we regress?" — the test
 *is* the regression check. So the "needs a build/test gate"
 argument doesn't apply to test files specifically.
 
-Same shape for `documenter` (docs don't affect runtime, so no
-gate needed) and `playwright-evaluator` (artifacts are
-evaluation outputs, not source).
+Same shape for `documenter`: docs don't affect runtime, so no
+gate is needed.
 
 `implementer` extends the same argument to production code:
 unlike a reviewer finding, a spec task *is* 1:1 with its patch,
@@ -150,7 +148,7 @@ When proposing a new skill, decide whether it's:
 - A **gate** → read-only check that returns PROCEED / BLOCK
   (e.g. `/mol:ship`).
 - A **runtime evaluator** → drives a live system to verify
-  acceptance criteria (e.g. `/mol:web`).
+  acceptance criteria (e.g. `/mol:perf`).
 
 The git-workflow skills (`/mol:commit`, `/mol:push`, `/mol:pr`,
 `/mol:tag`) are a fifth kind — workflow-state mutators that

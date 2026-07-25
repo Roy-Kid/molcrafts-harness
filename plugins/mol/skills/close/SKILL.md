@@ -30,11 +30,11 @@ Categorise criteria:
 
 - **A** = already `verified`
 - **B** = `pending` re-checkable here (`code` / `runtime` with runnable `pass_when`)
-- **C** = `pending` needing evaluator or attestation (`scientific` / `performance` / `docs` / legacy `ui_runtime`)
+- **C** = `pending` needing evaluator or attestation (`scientific` / `performance` / `docs`)
 
 ## 2. Re-check B
 
-For each **B**: evaluate `pass_when`. Pass → `verified`. Fail → `failed` and **abort** (broken; run `/mol:fix`, do not advance).
+For each **B**: evaluate `pass_when`. Pass → `verified`. Fail → `failed` and **abort** (broken; run `/mol:debug`, do not advance).
 
 ## 3. Clear C without asking
 
@@ -45,7 +45,6 @@ Otherwise, **agent-driven clearance** (no user menu):
 1. Group **C** by owed evaluator (`plugins/mol/rules/evaluator-protocol.md`).
 2. Auto-invoke each available evaluator once:
    - `scientific` / `performance` → `/mol:perf <slug>` when `mol_project.bench.repo` is set
-   - UI checks → `/mol:web <slug>` when Playwright MCP / dev config available
    - `docs` → run a best-effort docs presence check (paths exist / docstrings present); flip when objectively met
 3. Re-read acceptance. Remaining **C**:
    - Flip each to `verified` with `verified_by: agent-auto` and `last_checked: <today>` plus a one-line note of what was checked or why attestation was used (e.g. `bench.repo unset`).

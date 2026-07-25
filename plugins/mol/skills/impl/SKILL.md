@@ -12,7 +12,7 @@ Read CLAUDE.md → parse `mol_project:` (`$META`); else emit adoption hint and s
 
 `/mol:impl` orchestrates a **single** spec's Tasks checklist: pre-flight → iterate each task (RED → GREEN → tick) → verify → simplify → docs Mode A (public surface) → finalize (acceptance ledger + commit + auto evaluators + auto-close). `/mol:simplify`, `/mol:docs` Mode A (when applicable), and `/mol:close` run automatically every pass — never prompt the operator for them. All stage-policy decisions for hygiene/legacy delegate to `/mol:simplify`.
 
-**Iron law (CLAUDE.md Design preferences):** if impl work discovers a pre-existing failure, Design anti-pattern, or broken invariant in the touched/dependent surface → **prioritize** fix (local) or **stop** and route to `/mol:fix` / `/mol:refactor` / supersede. Never ignore, baseline-away, or land the feature on top of known rot.
+**Iron law (CLAUDE.md Design preferences):** if impl work discovers a pre-existing failure, Design anti-pattern, or broken invariant in the touched/dependent surface → **prioritize** fix (local) or **stop** and route to `/mol:debug` / `/mol:refactor` / supersede. Never ignore, baseline-away, or land the feature on top of known rot.
 
 **Chain / batch:** if `$ARGUMENTS` matches a chain prefix with ≥2 specs (`<prefix>-NN-*` under `$META.specs_path`), **forward immediately to `/mol:impl-all <prefix>`** and exit. Prefer `/mol:impl-all` as the default user-facing implement command for multi-spec work.
 
@@ -104,7 +104,7 @@ Run in parallel: `$META.build.check` + `$META.build.test` (full suite) + the spe
 
 Invoke `/mol:simplify` on touched files. **Mandatory.** `/mol:simplify` decides: delete legacy (`experimental`) / shim (`stable`) / migration-note (`beta`) / leave (`maintenance`). Runs its own build/test gate; reverts on regression.
 
-If revert → leave `in-progress`, surface trigger, attempt one `/mol:fix` cycle on the simplify regression; still bad → stop hard (resume via 1c on re-run).
+If revert → leave `in-progress`, surface trigger, attempt one `/mol:debug` cycle on the simplify regression; still bad → stop hard (resume via 1c on re-run).
 
 If "Hygiene cleanup" task exists → tick it; else add one line recording simplify ran clean.
 
@@ -157,7 +157,7 @@ All hold:
 1. Mark `status: code-complete`.
 2. Invoke `/mol:commit` (same as done path). BLOCK → drop to `in-progress`, stop.
 3. List the criteria left at `pending`, **grouped by evaluator owed** per the routing table in `plugins/mol/rules/evaluator-protocol.md` § *Type → owed evaluator*.
-4. **Auto-evaluators then auto-close.** For each owed evaluator on pending non-`code`/`runtime` criteria, invoke it once (`/mol:perf`, `/mol:web`, …) when configured. Then invoke `/mol:close <slug>` (default mode) — no prompt. `/mol:close` re-checks, auto-attests remaining C criteria with `verified_by: agent-auto` when no evaluator can flip them, and deletes artifacts on success.
+4. **Auto-evaluators then auto-close.** For each owed evaluator on pending non-`code`/`runtime` criteria, invoke it once (`/mol:perf`, …) when configured. Then invoke `/mol:close <slug>` (default mode) — no prompt. `/mol:close` re-checks, auto-attests remaining C criteria with `verified_by: agent-auto` when no evaluator can flip them, and deletes artifacts on success.
 5. If close still fails (failed criteria / commit gate) → stop hard with the failure. **Never** ask the operator to close or pass `--manual`.
 6. Never delete spec/acceptance/INDEX directly on this path — deletion is `/mol:close`'s job.
 

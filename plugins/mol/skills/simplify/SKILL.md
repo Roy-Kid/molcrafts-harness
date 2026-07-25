@@ -51,7 +51,7 @@ Write-mode counterpart to `janitor` (read-only). See `plugins/mol/rules/agent-de
 Run `$META.build.check` and `$META.build.test`. Record passing list + pre-existing failures.
 
 - **Regression gate for this skill's edits:** revert if you introduce *new* failures vs the snapshot (not "suite must be fully green before simplify starts").
-- **Iron law (no silent debt):** pre-existing failures are **not** "ignore and move on." List them in the report as **priority debt**. If a failure sits in the simplify scope (touched files / same module) and is stage-allowed hygiene or a clear bug → fix it in this run (or hand to `/mol:fix` and stop). Never add skips or weaken tests to quiet them. Out-of-scope pre-existing red → name path + route (`/mol:fix …`) in the summary; do not omit.
+- **Iron law (no silent debt):** pre-existing failures are **not** "ignore and move on." List them in the report as **priority debt**. If a failure sits in the simplify scope (touched files / same module) and is stage-allowed hygiene or a clear bug → fix it in this run (or hand to `/mol:debug` and stop). Never add skips or weaken tests to quiet them. Out-of-scope pre-existing red → name path + route (`/mol:debug …`) in the summary; do not omit.
 
 ### 3. Delegate to `janitor`
 
@@ -62,7 +62,7 @@ Invoke `janitor` agent on Step 1 scope. Capture findings + rule-capture suggesti
 For each finding:
 
 - matches **apply** list → candidate for batch apply
-- matches **refuse** list → label `manual: route to /mol:refactor (or /mol:fix)`, skip
+- matches **refuse** list → label `manual: route to /mol:refactor (or /mol:debug)`, skip
 - if `janitor` left a `Fix:` line → propose that exact patch. Multi-line / file-level reorg → out of contract, skip.
 
 Show triage table:
@@ -96,7 +96,7 @@ Never partial-apply. Green-after-revert is the only acceptable failure mode.
   - N_token-or-constant substitutions
 
 Manual handoffs (M):
-  - <finding> → /mol:refactor / /mol:fix
+  - <finding> → /mol:refactor / /mol:debug
 Suggested rule captures (S):
   - <suggestion> → /mol:note
 ```
@@ -107,7 +107,7 @@ End with a one-line summary: files touched, fixes applied, manual handoffs queue
 
 ## Guardrails
 
-- **Behavior-preserving only.** Runtime/API/test-outcome changes → `/mol:fix` or `/mol:refactor`.
+- **Behavior-preserving only.** Runtime/API/test-outcome changes → `/mol:debug` or `/mol:refactor`.
 - **Whole-batch atomicity.** Regression reverts entire batch — no half-cleaned tree.
 - **No new abstractions.** Only delete or rename. No new helpers / constants / modules.
 - **No CLAUDE.md / `.claude/notes/` writes.** Rule capture is `/mol:note`'s job.
