@@ -50,7 +50,7 @@ Extract from description + prior conversation:
 - **Inputs.** What `$ARGUMENTS` parses as. What it reads from CLAUDE.md / project / siblings.
 - **Behavior.** Decisive verbs (probe? generate? gate? delegate? orchestrate?). Branches (success/failure; converge/discard; PROCEED/BLOCK).
 - **Outputs.** Files written, agents invoked, user-facing shape, F2 one-line summary.
-- **Boundaries.** Read-only vs writing; what it refuses to touch; relation to neighbors (`/mol:spec` vs `/mol:note`, `/mol:fix` vs `/mol:impl`).
+- **Boundaries.** Read-only vs writing; what it refuses to touch; relation to neighbors (`/mol:spec` vs `/mol:note`, `/mol:debug` vs `/mol:impl`).
 - **Invoker class.** **User-invoked** (`disable-model-invocation: true` + `agents/openai.yaml` with `policy.allow_implicit_invocation: false`) when only the human should fire it and **no** sibling will auto-invoke it. **Model-invoked** (omit the flag; optional `allow_implicit_invocation: true`) when the model or another skill must reach it. **Invoker rule:** if skill A auto-invokes skill B, B is model-invoked. See `plugins/mol/rules/design-principles.md` § 2.5. Prefer a thin user entry + model-invoked body only when the same procedure needs both deliberate typing and auto-call (e.g. `/mol:grill` → `/mol:grilling`).
 - **Free-form tier (A–E).** For model-invoked skills, pick a tier from § 2.6 and bake **trigger phrases** (Chinese + English) plus when *not* to fire into `description` — that description is the always-on index card. Do not create a second skill file just for indexing.
 

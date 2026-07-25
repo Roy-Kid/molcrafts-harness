@@ -46,8 +46,8 @@ First positional arg selects the gate. Cumulative — `merge` ⊇ `push` ⊇ `co
 
 6. **Route fixes.** For each blocker, name the `/mol:*` skill (this skill refuses to edit):
 
-   - lint / format → `/mol:fix <file>` with failing rule
-   - failing test → `/mol:fix` (expected to pass) or `/mol:impl` (feature incomplete)
+   - lint / format → `/mol:debug <file>` with failing rule
+   - failing test → `/mol:debug` (expected to pass) or `/mol:impl` (feature incomplete)
    - architecture violation surfaced by CI → `/mol:review --axis=arch` then `/mol:refactor`
    - doc drift → `/mol:docs`
    - CI-config drift (matrix / secrets / runner) → ask user to update `$META.ci` or workflow file. Never edit workflows automatically.

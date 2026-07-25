@@ -67,7 +67,7 @@ head first; only green work merges, so the org default stays green.
 
 1. **Never** merge a red PR. Wait for required checks (`gh pr checks
    --watch` or equivalent) until green or a hard timeout → **BLOCK** and
-   report failures (route `/mol:fix` / re-push).
+   report failures (route `/mol:debug` / re-push).
 2. Prefer merge **without** `--admin` so branch protection is honored.
 3. Use `--admin` only when the merge is blocked solely by permissions /
    admin-only protection **and** checks are already green — never to

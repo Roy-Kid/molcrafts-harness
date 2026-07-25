@@ -128,7 +128,7 @@ for the authoritative table):
 ### `stage` (optional, enum)
 
 The project's lifecycle stage. Governs how aggressive the writing
-skills (`/mol:impl`, `/mol:fix`, `/mol:refactor`, `/mol:simplify`)
+skills (`/mol:impl`, `/mol:debug`, `/mol:refactor`, `/mol:simplify`)
 and reviewers (`pm`, `janitor`) are allowed to be when touching
 existing code. See `plugins/mol/rules/stage-policy.md` for the full
 behavioral matrix.
@@ -138,7 +138,7 @@ behavioral matrix.
 | `experimental` | pre-1.0, churn allowed (the default)  | breaking changes are normal, legacy code deleted on sight, no shims  |
 | `beta`         | pre-1.0 with known users              | breaking changes allowed at minor bumps with migration note          |
 | `stable`       | `≥ 1.0`, semver applies               | additive changes preferred; deprecate-then-remove across one major   |
-| `maintenance`  | bug fixes / security only             | `/mol:impl` and `/mol:refactor` refuse; only `/mol:fix` proceeds     |
+| `maintenance`  | bug fixes / security only             | `/mol:impl` and `/mol:refactor` refuse; only `/mol:debug` proceeds     |
 
 If absent, skills default to `experimental` and emit a warning on
 first read. This is intentional graceful degradation — adopting the

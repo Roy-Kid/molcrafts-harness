@@ -7,7 +7,7 @@ model: sonnet
 
 Read CLAUDE.md → parse `mol_project:`. Walk `mol_project.notes_path`, `.claude/notes/decisions/`, `.claude/notes/debt/`, `.claude/notes/rubrics/` → load every captured "we always X" / "we never Y" / "renamed A → B" rule.
 
-Read-only. Report only; `/mol:fix` and `/mol:refactor` apply patches. Pay debt daily-small, not end-of-cycle-big.
+Read-only. Report only; `/mol:debug` and `/mol:refactor` apply patches. Pay debt daily-small, not end-of-cycle-big.
 
 ## Single axis (what this agent owns)
 

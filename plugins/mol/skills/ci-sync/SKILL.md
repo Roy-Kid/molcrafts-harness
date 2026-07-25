@@ -77,7 +77,7 @@ pre-commit run --all-files
 ```
 
 Report the exit code. New failures introduced by added hooks are reported as
-blockers with a `Suggested agent:` route (`/mol:fix` for code, `/mol:simplify`
+blockers with a `Suggested agent:` route (`/mol:debug` for code, `/mol:simplify`
 for hygiene) — do **not** fix source code here and do not loosen the hook to
 make it pass.
 

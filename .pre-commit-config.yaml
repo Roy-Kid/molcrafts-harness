@@ -1,9 +1,11 @@
+# Managed by prek: `prek install`
+default_install_hook_types: [pre-commit, pre-push]
+
 # Local hooks mirror .github/workflows/validate-plugins.yml exactly.
 # Single source of truth for "what CI runs" — keep commands in lockstep.
 # Install:  pre-commit install && pre-commit install --hook-type pre-push
 # Run all:  pre-commit run --all-files
 
-default_stages: [pre-commit]
 
 repos:
   - repo: local

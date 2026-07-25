@@ -33,7 +33,6 @@ Sections (in order, all mandatory):
 - **Files to create or modify** — bulleted concrete file paths (no globs). Mark new files: `(new)` after path.
 - **Tasks** — see § 2; mandatory; every file in Files-to-create-or-modify must appear in ≥1 Tasks item.
 - **Testing strategy** — unit tests only under `tests/`, paths mirroring `src/` (e.g. `src/foo/boo.py` → `tests/test_foo/test_boo.py`), types mirrored (`FooClass` → `TestFooClass`). Each unit test targets a **single function/method** — no e2e under `tests/`. Enumerate happy path, edge cases, and (if `$META.science.required`) domain validation with **hard-coded** expected values. Also names the spec's **regression example**: one minimal public-API script under `regressions/` (repo root — never inside `tests/`). If a third-party oracle was used to obtain goldens, the regression must **embed those values as literals** (comment: tool, version, command, date) — never import or subprocess the third party at test time. Physics → textbook case + citation + hard-coded refs; otherwise minimal use-case + expected output.
-- **UI verification** — *optional; only when the spec touches a frontend.* Bulleted, observable browser checks for ad-hoc `/mol:web` runs. **Non-binding**: these never become acceptance criteria and never gate `done`.
 - **Out of scope** — present even if "none". Empty section is a smell — if "none", confirm alternatives were considered.
 
 ### 2. Tasks (the implementation tracker)
@@ -118,7 +117,6 @@ Rules:
 - `id` starts at `ac-001` and increments. Supersede → restart at `ac-001` (spec body rewritten → fresh contract).
 - Pick **narrowest type that suffices**. Split into multiple if it spans categories.
 - Always emit one `type: runtime` criterion for the regression example — `pass_when` names the `regressions/<slug>.<ext>` script and the **hard-coded** reference values / tolerance it must reproduce (no live third-party). Keep it `runtime` (verified by `/mol:impl` at delivery), **not** `scientific` — the example lives in this repo's `regressions/`, not the external bench repo.
-- **Never emit `type: ui_runtime`.** Browser-verifiable behaviors go into the spec body's **UI verification** section instead — non-binding, verified ad hoc by `/mol:web`, never gating `done`.
 - `pass_when` is the binding bar — third party verifies yes/no without rereading spec.
 - `status: pending` on every fresh criterion. **Never emit `verified` or `failed`** — only `/mol:impl` (for `code`/`runtime`) and runtime evaluator skills (for their type) write those, per `evaluator-protocol.md` § *Field semantics*. Supersede/refine regenerates the block — every `id` resets to `pending` even if old spec had `verified`.
 
@@ -173,9 +171,6 @@ created: <today's ISO date>
 - [ ] …
 
 ## Testing strategy
-- …
-
-## UI verification   <!-- optional; only when a frontend is touched; non-binding -->
 - …
 
 ## Out of scope

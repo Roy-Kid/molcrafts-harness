@@ -74,13 +74,13 @@ Every skill runs in one of two modes, defined in
 - **Advisor (顾问模式)** — the deliverable is words: an answer, plan,
   verdict, or diagnosis. The main conversation (session model, top
   tier) authors it; agents only gather evidence. (`/mol:discuss`,
-  `/mol:grill` / `/mol:grilling`, `/mol:debug`, `/mol:review`,
+  `/mol:grill` / `/mol:grilling`, `/mol:review`,
   `/mol:test`, `/mol:ship`, …)
 - **Orchestration (编排模式)** — the deliverable is artifacts: code,
   docs, specs, commits. The main loop plans, routes, gates, and
   verifies; opus-class producer agents author the artifacts — the
   main loop never authors production source (`implementer` writes
-  code, `tester` tests, `documenter` docs). (`/mol:impl`, `/mol:fix`,
+  code, `tester` tests, `documenter` docs). (`/mol:impl`, `/mol:debug`,
   `/mol:spec`, the git chain, `/mol:release`, …)
 
 Orthogonal to mode: **user- vs model-invoked** skills (who may fire
@@ -111,7 +111,7 @@ reviewers may be when touching existing code. `experimental` lets
 `/mol:impl` rewrite legacy on sight; `stable` requires deprecation
 shims for public-signature changes; `maintenance` makes
 `/mol:refactor` and new-feature `/mol:impl` refuse outright (only
-`/mol:fix` proceeds). Full matrix in
+`/mol:debug` proceeds). Full matrix in
 [`rules/stage-policy.md`](rules/stage-policy.md).
 
 Skills group by intent. Each row shows what it does, when to
@@ -127,7 +127,7 @@ reach for it, and a one-line example.
 
 | Skill | What | When | Example |
 |---|---|---|---|
-| `/mol:discuss <topic>` | Free-form design discussion with `Convergence pulse`. **Tier A** free-form auto (该不该做 / trade-offs). Converge → auto `/mol:grilling` (plan); discard → no artifacts. Hard 8-turn cap. Never auto-invokes `/mol:spec` (tier C ignition: 落盘 / 写 spec). | Requirement not clear enough for `/mol:spec`. | `/mol:discuss should /mol:web own remote dev servers?` |
+| `/mol:discuss <topic>` | Free-form design discussion with `Convergence pulse`. **Tier A** free-form auto (该不该做 / trade-offs). Converge → auto `/mol:grilling` (plan); discard → no artifacts. Hard 8-turn cap. Never auto-invokes `/mol:spec` (tier C ignition: 落盘 / 写 spec). | Requirement not clear enough for `/mol:spec`. | `/mol:discuss should /mol:perf own remote bench runs?` |
 | `/mol:grill <plan>` | **User-only entry** (`disable-model-invocation: true`). Thin wrapper → `/mol:grilling` plan mode. Free-form/model paths call `/mol:grilling` directly. | Deliberately typing a grill session. | `/mol:grill cache force results per-frame keyed on neighbor-list hash` |
 | `/mol:grilling [mode] <plan\|slug>` | **Model-invoked** body (**tier A** when a plan exists). Modes: **plan** → sharpened plan + tier C handoff to spec; **spec-audit** → `clean \| supersede_needed`. Auto from discuss/spec; free-form 盘问/grill. | Auto or free-form stress-test. | `/mol:grilling mode:spec-audit morse-bond` |
 | `/mol:spec` | Requirement → `<slug>.md` + acceptance under `.claude/specs/`, then auto grill (spec-audit) → clean auto `impl-all`. **Tier C** — say 落盘 / 写 spec (slash optional); never silent from discuss/grilling. | Binding artifact for non-trivial work. | `/mol:spec add Morse bond potential to molpy` |
@@ -139,26 +139,25 @@ reach for it, and a one-line example.
 |---|---|---|---|
 | `/mol:impl` | Full TDD workflow gated on an approved spec + acceptance — orchestration only. Ends every run by auto `/mol:simplify` → **`/mol:docs` Mode A** when the diff touches public surface → `/mol:close` (with auto evaluators). Parks at `code-complete` only if runtime-evaluator-typed criteria remain pending. | After `/mol:spec` (`status: approved`). | `/mol:impl morse-bond` |
 | `/mol:impl-all <prefix>` | Batch-implement a spec chain (`<prefix>-01-*`, `<prefix>-02-*`, …) end-to-end. Discovers matching specs, sorts by numeric suffix, then drives the chain in its own agentic loop — each spec runs `/mol:impl` + `/mol:commit` + auto `/mol:close`, with an independent cheap-model evaluator confirming the terminal state between specs. Never stops to ask questions. Stops on stall. | When a feature is split into a spec chain and you want hands-off execution. | `/mol:impl-all morse-bond` |
-| `/mol:close <slug> [--manual]` | The closing counterpart to `/mol:impl`. Advances a `code-complete` spec to `done` by re-checking the acceptance ledger and deleting the spec + acceptance + INDEX entry. Auto-invoked (default mode) by `/mol:impl` and `/mol:impl-all` after every finished spec; also runnable standalone. Default mode assumes a runtime evaluator (`/mol:perf`, `/mol:web`) already flipped the remaining criteria. `--manual` (operator-only, never automatic) asserts observably-met criteria without an evaluator; flips `pending` → `verified` with a `verified_by: human` audit note. | Standalone: after an owed evaluator has run, or with `--manual` when no evaluator is available. | `/mol:close morse-bond` &nbsp;·&nbsp; `/mol:close morse-bond --manual` |
-| `/mol:fix` | Minimal-diff bug fix — reproduce, consume an existing `/mol:debug` report or delegate diagnosis to `debugger` (Step 2), patch the smallest surface via `implementer` (Step 3), verify. Calls `tester` for a regression test when the root cause suggests a missing one. | When a test fails or a bug is reported. | `/mol:fix energy NaN at zero distance` |
+| `/mol:close <slug> [--manual]` | The closing counterpart to `/mol:impl`. Advances a `code-complete` spec to `done` by re-checking the acceptance ledger and deleting the spec + acceptance + INDEX entry. Auto-invoked (default mode) by `/mol:impl` and `/mol:impl-all` after every finished spec; also runnable standalone. Default mode assumes a runtime evaluator (`/mol:perf`) already flipped the remaining criteria. `--manual` (operator-only, never automatic) asserts observably-met criteria without an evaluator; flips `pending` → `verified` with a `verified_by: human` audit note. | Standalone: after an owed evaluator has run, or with `--manual` when no evaluator is available. | `/mol:close morse-bond` &nbsp;·&nbsp; `/mol:close morse-bond --manual` |
+| `/mol:debug [--diagnose-only]` | The bug loop, in one skill: reproduce → diagnose via `debugger` → minimal patch via `implementer` → verify. Calls `tester` for a regression test when the root cause suggests a missing one. Proceeds at every `mol_project.stage` (bugs are always in scope). `--diagnose-only` stops at the root-cause report and edits nothing. | When a test fails or a bug is reported. | `/mol:debug energy NaN at zero distance` &nbsp;·&nbsp; `/mol:debug --diagnose-only segfault in dipole kernel` |
 | `/mol:refactor` | Restructure code while preserving all architectural invariants. Snapshot → incremental change → re-verify. Calls `architect` pre and post. | When the structure needs to change but behavior must not. | `/mol:refactor split forces module by backend` |
 | `/mol:ci-sync [<root>]` | Audit and repair CI / pre-commit parity — write-mode counterpart of the `ci-guard` agent. Delegates the audit to `ci-guard`, then patches `.pre-commit-config.yaml` and the CI workflow so both sides run identical commands from `mol_project.build`; scaffolds both files for projects that have neither. Writes config files only, never source. | When CI catches things pre-commit missed (or vice versa); when adopting a project with no CI at all. | `/mol:ci-sync` |
 | `/mol:simplify` | Hygiene + stage-aware backward-compat on the current diff (dead code, debug residue, naming drift, toolchain trio). Behavior-preserving; whole-batch revert on regression. **Tier A** free-form (整理代码 / tidy / cleanup). Mandatory from `/mol:impl` § 3b. | After impl, after review hygiene, or free-form on a dirty diff. | `/mol:simplify` |
+| `/mol:ui [<stage>]` | MolCrafts frontend design system. Detects the archetype (`viewer` like molvis / `workbench` like molexp), audits the surface against the shared visual language, then applies **one ladder stage** per run: `skeleton` → `tokens` → `components` → `de-card` → `states` → `motion`. Delegates the judgment axis to the `web-design` agent, drives an optional screenshot pass through whatever browser-automation MCP is installed, records the result in `.claude/notes/ui-guidelines.md`. Hard-refuses shared cross-product UI packages and Tailwind presets. **Tier C** free-form (前端设计 / UI 改造 / 太像模板了 / de-shadcn). | When a frontend looks like a shadcn template, or before growing a product's component vocabulary. | `/mol:ui audit` &nbsp;·&nbsp; `/mol:ui tokens` |
 
 ### 3 — Review (read-only)
 
 | Skill | What | When | Example |
 |---|---|---|---|
-| `/mol:review` | The unified multi-axis static reviewer. Fans out to one single-axis agent per axis, hands findings to the `reviewer` agent for the table + verdict. Use `--axis=<name>` to scope to one dimension: `arch`, `perf`, `docs`, `ux`, `api`, `science`, `numerics`, `visual`, `security`, `ffi`, `hygiene`. Surfaces runtime evaluator handoffs (`/mol:web`, etc.) when an `acceptance.md` is in scope. | Before commit / push / PR; or when you want one specific axis checked. | `/mol:review` &nbsp;·&nbsp; `/mol:review --axis=security` &nbsp;·&nbsp; `/mol:review morse-bond` |
-| `/mol:debug` | Diagnose-only — never writes code. Thin wrapper around the `debugger` subagent: classifies the failure (build / test / runtime), gathers evidence, returns root cause + fix recommendation + preventive-test idea. | When a failure is mysterious and you want a clean diagnosis before patching. | `/mol:debug segfault in dipole kernel` |
-| `/mol:test` | Run the suite via `mol_project.build.test`; delegate to `tester` in **analyze-mode** for category coverage and tolerance discipline. (Test *writing* lives in `/mol:impl` and `/mol:fix`.) | When you want to know the state of the suite + what categories are missing. | `/mol:test` &nbsp;·&nbsp; `/mol:test tests/forces/` |
+| `/mol:review` | The unified multi-axis static reviewer. Fans out to one single-axis agent per axis, hands findings to the `reviewer` agent for the table + verdict. Use `--axis=<name>` to scope to one dimension: `arch`, `perf`, `docs`, `ux`, `api`, `science`, `numerics`, `visual`, `security`, `ffi`, `hygiene`. Surfaces runtime evaluator handoffs (`/mol:perf`, etc.) when an `acceptance.md` is in scope. | Before commit / push / PR; or when you want one specific axis checked. | `/mol:review` &nbsp;·&nbsp; `/mol:review --axis=security` &nbsp;·&nbsp; `/mol:review morse-bond` |
+| `/mol:test` | Run the suite via `mol_project.build.test`; delegate to `tester` in **analyze-mode** for category coverage and tolerance discipline. (Test *writing* lives in `/mol:impl` and `/mol:debug`.) | When you want to know the state of the suite + what categories are missing. | `/mol:test` &nbsp;·&nbsp; `/mol:test tests/forces/` |
 | `/mol:ship <tier>` | Three-tier CI-parity gate (`commit` ⊆ `push` ⊆ `merge`). Reports PROCEED or BLOCK and routes blockers to the right write-mode skill. Read-only — never edits. | The gates underneath `/mol:commit`, `/mol:push`. Run manually before a `merge` to mirror remote CI locally. | `/mol:ship merge` |
 
 ### 4 — Runtime evaluator
 
 | Skill | What | When | Example |
 |---|---|---|---|
-| `/mol:web <slug>` | Frontend runtime evaluator. Reads the spec body's non-binding `## UI verification` checks (plus legacy `type: ui_runtime` acceptance criteria from older specs), starts the dev server via `mol_project.dev.command` and parses the URL from its ready banner, drives whatever Playwright MCP / browser-automation plugin you installed, and returns per-check verdicts + screenshots / console / network artifacts. Advisory — UI checks never gate spec close; only legacy criteria get their `status` written back. Self-skips when no Playwright MCP is reachable. | Ad hoc, whenever you want the frontend exercised against the spec's UI checks. | `/mol:web spec-tree-view` |
 | `/mol:perf <slug>` | External performance/scientific evaluator (replaces former `mol:bench`). Reads `<slug>.acceptance.md`, picks `type: scientific` + `type: performance` criteria, runs the project's separate `bm_*` pytest-benchmark repo (configured via `mol_project.bench.repo`) — which pairs each kernel with an equality check against a user-named reference (freud, scipy, …) — and flips each handled criterion's `status` back into `acceptance.md`. Self-skips when no bench repo is configured or no usable `evaluator_hint` selector is on the criterion. | After `/mol:impl` parks a spec at `status: code-complete` with `scientific` or `performance` criteria still `pending`. | `/mol:perf morse-bond` |
 
 ### 4b — Scientific HPC / CUDA (design & optimize)
@@ -218,8 +217,8 @@ and avoids failure emails to all watchers.
 ### Bug fix
 
 ```
-/mol:debug <symptom>          # optional: diagnose-only first
-/mol:fix <bug>                # write regression test + minimal patch
+/mol:debug --diagnose-only <symptom>   # optional: see the root cause first
+/mol:debug <bug>                       # regression test + minimal patch
 /mol:review --axis=arch       # or any single axis you suspect
 /mol:commit && /mol:push && /mol:pr   # fork only, then PR — never push upstream
 ```
@@ -249,7 +248,7 @@ Each owns one expertise axis. They split into two kinds —
 | Agent | Kind | Model | Axis |
 |---|---|---|---|
 | `architect` | reviewer | opus | Module boundaries, layer rules, dependency graph |
-| `debugger` | reviewer | opus | Failure root cause + fix recommendation + preventive-test idea (used by `/mol:debug` standalone; `/mol:fix` Step 2 consumes an existing report or delegates fresh) |
+| `debugger` | reviewer | opus | Failure root cause + fix recommendation + preventive-test idea (`/mol:debug` Step 2 consumes an existing report or delegates fresh) |
 | `tester` | producer-write (write-mode) / reviewer (analyze-mode) — dual-mode | opus | Unit tests only under `tests/` mirroring `src/` (`TestFooClass`); single-function, no e2e in unit tree; `regressions/` public-API with **hard-coded** goldens (no live third-party); analyze-mode audits layout/naming/scope |
 | `implementer` | producer-write | opus | Executes one spec Task / one fix patch — minimal production code turning a RED test GREEN; never writes tests, never ticks/commits/reverts |
 | `scientist` | reviewer | opus | Equations, units, conservation, literature (every claim cites a fetched-this-run reference or derives inline) |
@@ -267,7 +266,6 @@ Each owns one expertise axis. They split into two kinds —
 | `ffi-guard` | reviewer | opus | FFI-boundary safety — panics/exceptions across the seam, raw pointers in signatures, stale handles, ownership leaks, string-copy discipline, GIL/Sync hazards. Auto-detects the binding surface (C ABI / CXX / PyO3 / wasm-bindgen / ctypes / N-API); self-skips files with none. |
 | `janitor` | reviewer | sonnet | Continuous tech-debt servicing — applies the project's captured `.claude/notes/` aesthetic rules to every diff, plus a language-canonical toolchain pass (formatter + linter + type checker — `ruff` / `ty` for Python, `biome` / `tsc` for TypeScript, `cargo fmt` / `clippy` / `cargo check` for Rust). Pays down debt a little every review. |
 | `reviewer` | reviewer | sonnet | Multi-axis aggregator — collects findings from the other reviewers into a severity table, resolves conflicts, renders the verdict. |
-| `playwright-evaluator` | producer-write (artifacts) | sonnet | Verifies one UI check (spec-body `## UI verification` item or legacy `ui_runtime` criterion) against a running app via whatever browser-automation MCP is installed. |
 
 Review-style agents emit `<emoji> file:line — message` using 🚨 Critical,
 🔴 High, 🟡 Medium, 🟢 Low. Verdict: any 🚨 → BLOCK; any 🔴 → REQUEST
