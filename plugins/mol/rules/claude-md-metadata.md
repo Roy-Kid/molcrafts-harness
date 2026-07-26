@@ -171,6 +171,32 @@ ci:
   local: "act push"
 ```
 
+### `release` (optional, object) — delegated release hooks
+
+Used by `/mol:release`. Lets a repo whose version surface or pre-release gate
+is not a standard single crate/py/npm manifest delegate those two steps to
+**project-local hook skills**, while `/mol:release` keeps the generic
+chain (branch → commit → push fork → PR → green → merge → tag). Absent →
+`/mol:release` uses its built-in library behavior (crate/py/npm bump +
+dep/registry/docs gates), so ordinary libraries need no `release` block.
+
+| Key          | Type   | Notes                                                                                                   |
+|--------------|--------|---------------------------------------------------------------------------------------------------------|
+| `bump_skill` | string | Name of a project-local skill invoked as `Skill(<bump_skill>, <patch\|minor\|major>)`. It reads the current version, rewrites + stages every version field in the repo, and returns `old` → `new`. |
+| `gate_skill` | string | Name of a project-local skill invoked as `Skill(<gate_skill>)` for pre-release verification; its PASS / BLOCK verdict replaces the built-in §3 gates. |
+
+`molcrafts-harness` itself uses this: `bump_skill: release-bump` (bumps every
+plugin + marketplace version field via `scripts/bump_version.py`) and
+`gate_skill: check` (the marketplace structure + semantic + smoke gate).
+
+Example:
+
+```yaml
+release:
+  bump_skill: release-bump
+  gate_skill: check
+```
+
 ### `style` (optional, mapping) — janitor knobs
 
 Tunes the `janitor` agent's continuous tech-debt scan. Every key is

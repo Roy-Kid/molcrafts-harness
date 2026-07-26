@@ -1,9 +1,12 @@
 # Git publish chain — remotes, pre-commit, PR-first
 
 Canonical rules for `/mol:commit`, `/mol:push`, `/mol:pr`, `/mol:release`,
-`/mol-plugin:release`, and `/mol:tag`. Skills implement procedure; this
-file owns the invariants. Do not restate conflicting remote or merge
-policy inside a skill.
+and `/mol:tag`. Skills implement procedure; this file owns the invariants.
+Do not restate conflicting remote or merge policy inside a skill.
+
+`/mol:release` is the single release skill for every `mol*` repo — ecosystem
+libraries and the `molcrafts-harness` marketplace alike; it adapts per repo
+through `mol_project.release` hook skills (see `claude-md-metadata.md`).
 
 ## Remotes (fork pair)
 
@@ -60,7 +63,7 @@ head first; only green work merges, so the org default stays green.
 | `/mol:commit` | Local commit only | — |
 | `/mol:push` | Branch tip | **`origin` only** |
 | `/mol:pr` | Opens GitHub PR | head=`origin`, base=`upstream/<default>` |
-| `/mol:release` / `/mol-plugin:release` | Version + full chain | commit → push → pr → **wait checks** → merge → tag |
+| `/mol:release` | Version + full chain | commit → push → pr → **wait checks** → merge → tag |
 | `/mol:tag` | Annotated tag object already local | Tag ref to **`upstream`** (or sole remote) — never orphan tags |
 
 ## Merge policy (after PR)

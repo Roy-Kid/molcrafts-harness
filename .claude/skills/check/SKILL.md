@@ -1,18 +1,19 @@
 ---
 name: check
-description: Unified marketplace self-check — deterministic dual-manifest validator, semantic contracts, skill/agent content janitor (safe rewrites in place), and Claude/Codex install smoke. Use after plugin, skill, agent, hook, or marketplace edits.
+description: Marketplace self-check for this repo — deterministic dual-manifest validator, semantic contracts, skill/agent content janitor (safe rewrites in place), and Claude/Codex install smoke over the published plugins (mol, molexp, molq). Project-local; run after plugin, skill, agent, hook, or marketplace edits, and as the release gate.
 argument-hint: "[<plugin>] [--static-only] [--no-write]"
 ---
 
-> **Codex:** Read `../CODEX.md` before executing this shared workflow. Claude Code follows the workflow directly.
+# /check — Marketplace Self-Check
 
-# /mol-plugin:check — Marketplace Self-Check
-
-One skill owns the full marketplace audit (structure + content + install smoke). Do not reintroduce separate smoke or content-janitor skills.
+Project-local maintenance skill for `molcrafts-harness`. One skill owns the
+full marketplace audit (structure + content + install smoke). Do not
+reintroduce separate smoke or content-janitor skills. `/mol:release` uses
+this skill as its `gate_skill`.
 
 | Phase | What | Mutates source? |
 |-------|------|-----------------|
-| **Structure** | `validate_repository.py` + semantic contracts | no |
+| **Structure** | `scripts/validate_repository.py` + semantic contracts | no |
 | **Content** | Skill/agent prose janitor | safe rewrites only (unless `--no-write`) |
 | **Smoke** | Claude native validate + isolated Codex install | no (temp home only) |
 
@@ -38,13 +39,7 @@ Walk upward from cwd until `.claude-plugin/marketplace.json` exists. No match �
 ### 2. Structure — deterministic gate
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/scripts/validate_repository.py" --root <root>
-```
-
-When `${CLAUDE_PLUGIN_ROOT}` is unavailable (source checkout):
-
-```bash
-python3 <root>/plugins/mol-plugin/scripts/validate_repository.py --root <root>
+python3 scripts/validate_repository.py --root <root>
 ```
 
 Script owns: both marketplace schemas and plugin order; Claude/Codex manifest names, versions, fields, source paths; skill frontmatter/names/H1s/adapter directives; agent frontmatter, model tiers, read-only boundaries; hook JSON; no duplicated Codex skill trees.
@@ -59,7 +54,7 @@ For each in-scope plugin, read README, manifests, `skills/*/SKILL.md`, `skills/C
 - **Boundaries** — read-only vs write explicit; no two skills claim the same mutation/verdict
 - **Delegation** — one axis per agent; producer/reviewer split matches `plugins/mol/rules/agent-design.md`
 - **Safety** — approval, clean-tree, destructive, push, tag, release gates explicit and ordered
-- **Git publish** — when auditing `mol` push/pr/release/tag or `mol-plugin` release, require alignment with `plugins/mol/rules/git-publish.md`:
+- **Git publish** — when auditing `mol` push/pr/release/tag, require alignment with `plugins/mol/rules/git-publish.md`:
   - branch push target = **`origin` (fork) only**; never branch-push to `upstream`
   - land on org default only via **`/mol:pr` → green checks → merge**
   - release publish steps include wait-for-checks and forbid merging red CI
@@ -102,12 +97,13 @@ Skip entire phase if `--static-only`.
 
 #### 5a. Claude Code native validators
 
-Require `claude` CLI:
+Require `claude` CLI. Validate the marketplace and every published plugin:
 
 ```bash
 claude plugin validate <root>
 claude plugin validate <root>/plugins/mol
-claude plugin validate <root>/plugins/mol-plugin
+claude plugin validate <root>/plugins/molexp
+claude plugin validate <root>/plugins/molq
 ```
 
 Error → smoke BLOCK. Warnings → WARN (do not alone block PUBLISH-READY unless severity is error).
@@ -120,15 +116,14 @@ Require `codex` CLI. Create a **new** temp dir + `codex-home/` child. Set `CODEX
 CODEX_HOME=<temp>/codex-home codex plugin marketplace add <root> --json
 CODEX_HOME=<temp>/codex-home codex plugin list
 CODEX_HOME=<temp>/codex-home codex plugin add mol@molcrafts --json
-CODEX_HOME=<temp>/codex-home codex plugin add mol-plugin@molcrafts --json
 CODEX_HOME=<temp>/codex-home codex plugin list
 ```
 
-Final list must show both plugins installed and enabled at manifest versions.
+Final list must show `mol` installed and enabled at its manifest version, and `molexp` / `molq` available. Add and inspect those two as well when the change under test touches them.
 
-Inspect installed `mol` cache: `skills/CODEX.md`, every source `skills/*/SKILL.md`, `agents/`, `rules/`.
+Inspect the installed `mol` cache: `skills/CODEX.md`, every source `skills/*/SKILL.md`, `agents/`, `rules/`.
 
-Inspect installed `mol-plugin` cache: `skills/CODEX.md`, `scripts/validate_repository.py`, `hooks/hooks.json` when present in source.
+Note: marketplace-maintenance tooling (this `check` skill, `new-skill`, `release-bump`, `scripts/validate_repository.py`, `tests/`) is **project-local to this repo**, not a published plugin — it is exercised directly here, not through a Codex install.
 
 Delete only this run's temp dir. Failed cleanup → WARN, not BLOCK.
 
@@ -160,8 +155,8 @@ Smoke table (omit rows when `--static-only`):
 | repository validator | PASS / BLOCK | error/warning counts |
 | semantic | PASS / FIX REQUIRED | finding counts |
 | content | PASS / FIX REQUIRED | applied / ambiguity counts |
-| Claude marketplace / mol / mol-plugin | PASS / WARN / BLOCK / SKIP | native summary |
-| Codex marketplace / mol / mol-plugin install | PASS / WARN / BLOCK / SKIP | version + cache |
+| Claude marketplace / mol / molexp / molq | PASS / WARN / BLOCK / SKIP | native summary |
+| Codex marketplace / mol install | PASS / WARN / BLOCK / SKIP | version + cache |
 
 **Verdict**
 
@@ -173,7 +168,7 @@ Content AMBIGUITY alone does not force FIX REQUIRED unless it is 🚨/🔴; list
 End with:
 
 ```
-/mol-plugin:check: <PUBLISH-READY | FIX REQUIRED> — structure <…>, content <applied/ambiguity>, smoke <PASS|WARN|BLOCK|SKIP>
+/check: <PUBLISH-READY | FIX REQUIRED> — structure <…>, content <applied/ambiguity>, smoke <PASS|WARN|BLOCK|SKIP>
 ```
 
 ## Guardrails

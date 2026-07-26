@@ -43,18 +43,6 @@
         "job-queue",
         "molcrafts"
       ]
-    },
-    {
-      "name": "mol-plugin",
-      "source": "./plugins/mol-plugin",
-      "description": "Maintenance toolkit for the MolCrafts marketplace \u2014 scaffold skills, unified check (structure + content + install smoke), and release.",
-      "version": "0.14.0",
-      "keywords": [
-        "plugin-development",
-        "molcrafts",
-        "scaffolding",
-        "release"
-      ]
     }
   ]
 }

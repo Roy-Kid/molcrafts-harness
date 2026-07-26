@@ -38,4 +38,3 @@ export MOLMCP_MOLQ_SUBMIT=1 # only when agents may submit/cancel
 | `mol` | Code project harness (spec / impl / review / git) |
 | `molexp` | Experiment **data** workspace layout |
 | `molq` | **Job queue** lifecycle (this plugin) |
-| `mol-plugin` | Marketplace scaffolding / release |

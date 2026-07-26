@@ -9,8 +9,8 @@ having to re-derive the rules.
 
 These principles are enforced by `/mol:bootstrap`. Run it against
 any project that has been bootstrapped with the mol harness to check
-compliance. (The `molcrafts-harness/` marketplace repo itself has no
-harness — use `/mol-plugin:check` for its self-audit.)
+compliance. (The `molcrafts-harness/` marketplace repo maintains itself
+as a `mol*` project — its project-local `/check` skill runs the self-audit.)
 
 ## 0. Harness Engineering
 
@@ -223,10 +223,10 @@ model matches natural language to model-invoked skills. Use tiers so
 | Tier | Meaning | Free-form? | Examples |
 |---|---|---|---|
 | **A** | Must load the skill on matching intent; prefer chain auto where listed | Yes | `discuss`, `grilling` (has plan), `simplify`, `docs` Mode A, `note` (harness sync) |
-| **B** | Load on clear scene match; skip casual turns | Yes, scoped | `debug`, `fix`, `review`, `map`, `test`, `litrev`, `ci-sync` |
+| **B** | Load on clear scene match; skip casual turns | Yes, scoped | `debug`, `review`, `map`, `test`, `litrev`, `ci-sync` |
 | **C** | One-sentence ignition — user affirms; no silent fire | Oral OK, no slash required | `spec`, `commit`, `push`, `pr`, `refactor`, `bootstrap`, `docs` Mode B |
-| **D** | Chain/subroutine only; weak free-form need | Via siblings | `close`, `ship`, `tag`, `impl` after spec, `bench`/`web` when owed |
-| **E** | Model must not silent-fire | User-only or hard gate | `grill` entry, `release`, `mol-plugin:release` |
+| **D** | Chain/subroutine only; weak free-form need | Via siblings | `close`, `ship`, `tag`, `impl` after spec, `perf` when owed |
+| **E** | Model must not silent-fire | User-only or hard gate | `grill` entry, `release` |
 
 **Rules.** (1) A/B: put zh/en triggers in `description`. (2) C: oral
 ignition OK ("落盘", "提交吧") — still needs affirmative intent.
@@ -243,22 +243,23 @@ even when the model loads `/mol:spec` without a slash.
 
 **Fully agent-driven (never wait for approval / "what next?"):** implement,
 close, simplify, docs Mode A (public-surface), commit, push, pr, tag,
-release, bench, web, ship gates, fix/refactor apply loops once kicked,
+release, perf, ship gates, debug/refactor apply loops once kicked,
 bootstrap repairs that are mechanical. Closing a spec is **never** the
 human's job — `/mol:close` auto-runs evaluators and agent-auto-attests
 remaining criteria.
 
-Two publish chains (never mix them). Both follow
+One publish chain for every `mol*` repo, following
 `plugins/mol/rules/git-publish.md` (pre-commit ≡ CI; **origin = fork**
 branch push only; **upstream = canonical** via PR → green checks →
 merge; never direct-push branches to upstream):
 
-- **Harness marketplace:** `/mol-plugin:release` → commit → push(origin)
-  → pr → green checks → merge → tag (`molcrafts-harness` only).
-- **Ecosystem libraries:** `/mol:release` → dep/docs/harness gates →
-  version bump → commit → push(origin) → pr → green checks → merge →
-  tag. Dependencies on the official registry **before** dependents;
-  tag-triggered CI publishes to crates.io / PyPI / npm when configured.
+- **`/mol:release`** → gates (or a repo's `mol_project.release` `gate_skill`)
+  → version bump (or `bump_skill`) → commit → push(origin) → pr → green
+  checks → merge → tag. This covers both ecosystem libraries and the
+  `molcrafts-harness` marketplace — the marketplace declares
+  `bump_skill: release-bump` + `gate_skill: check`. Dependencies on the
+  official registry **before** dependents; tag-triggered CI publishes to
+  crates.io / PyPI / npm when configured.
 
 ## 3. Why This Split
 

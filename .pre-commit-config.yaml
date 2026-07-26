@@ -12,21 +12,28 @@ repos:
     hooks:
       - id: validate-repository
         name: validate plugin metadata (CI parity)
-        entry: python3 plugins/mol-plugin/scripts/validate_repository.py --root .
+        entry: python3 scripts/validate_repository.py --root .
         language: system
         pass_filenames: false
         always_run: true
 
       - id: test-model-policy
         name: structural unit tests — model policy
-        entry: python3 plugins/mol-plugin/tests/test_model_policy.py
+        entry: python3 tests/test_model_policy.py
         language: system
         pass_filenames: false
         always_run: true
 
       - id: test-project-blueprint
         name: structural unit tests — project blueprint
-        entry: python3 plugins/mol-plugin/tests/test_project_blueprint_mechanism.py
+        entry: python3 tests/test_project_blueprint_mechanism.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+      - id: test-git-publish
+        name: structural unit tests — git publish
+        entry: python3 tests/test_git_publish.py
         language: system
         pass_filenames: false
         always_run: true

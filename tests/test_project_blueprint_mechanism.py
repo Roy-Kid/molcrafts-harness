@@ -8,15 +8,15 @@ Each test reads production files under REPO_ROOT and asserts the contract
 declared in the corresponding `pass_when:` clause. Failures name the ac-id
 so a red test points at the violated contract directly.
 
-ac-013 (the meta-gate "/mol-plugin:check passes + this suite passes") is
+ac-013 (the meta-gate "/check passes + this suite passes") is
 intentionally not represented here; it is satisfied by /mol:impl Step 6
 running this very suite.
 
 Stdlib only: unittest + pathlib + re. No pytest, no PyYAML, no project
 build-system config required. Run with either:
 
-    python -m unittest plugins.mol-plugin.tests.test_project_blueprint_mechanism
-    python plugins/mol-plugin/tests/test_project_blueprint_mechanism.py
+    python -m unittest tests.test_project_blueprint_mechanism
+    python tests/test_project_blueprint_mechanism.py
 """
 
 from __future__ import annotations
@@ -26,8 +26,8 @@ import re
 import unittest
 from pathlib import Path
 
-# tests/ -> mol-plugin/ -> plugins/ -> <repo root>
-REPO_ROOT = Path(__file__).resolve().parents[3]
+# tests/ -> <repo root>
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 # ---------------------------------------------------------------------------

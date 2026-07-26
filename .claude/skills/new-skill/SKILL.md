@@ -1,14 +1,12 @@
 ---
 name: new-skill
-description: Scaffold one shared Claude-first skill inside a MolCrafts plugin, including Codex-compatible metadata and adapter linkage, without creating a duplicate workflow. Updates the plugin README and runs `/mol-plugin:check`.
+description: Scaffold one shared Claude-first skill inside a published MolCrafts plugin (mol/molexp/molq), including Codex-compatible metadata and adapter linkage, without creating a duplicate workflow. Updates the plugin README and runs `/check`. Project-local to this repo.
 argument-hint: "<plugin:skill-name> [<one-line description>]"
 ---
 
-> **Codex:** Read `../CODEX.md` before executing this shared workflow. Claude Code follows the workflow directly.
+# /new-skill — Skill Scaffold
 
-# /mol-plugin:new-skill — Skill Scaffold
-
-Scaffold a new skill in this marketplace (e.g. `mol:perf`, `mol-plugin:audit-templates`).
+Scaffold a new skill into a published plugin (e.g. `mol:perf`, `molq:watch`).
 
 Write surface: `plugins/<plugin>/skills/<skill-name>/SKILL.md` + one appended row in `plugins/<plugin>/README.md`'s skills table. Reuse the plugin's existing `skills/CODEX.md`; never create a second Codex copy of the workflow. Never touch existing skills, plugin manifests, or marketplace metadata.
 
@@ -26,7 +24,7 @@ Form: `<plugin>:<skill-name> [<description>]`.
 
 Validate:
 
-- `<plugin>` ∈ `mol`, `molexp`, `molq`, `mol-plugin` (or another existing dir under `plugins/`).
+- `<plugin>` ∈ `mol`, `molexp`, `molq` (or another existing dir under `plugins/`).
 - `<skill-name>` is kebab-case, no spaces, not already taken.
 - Description, if given, is one sentence.
 
@@ -39,7 +37,6 @@ Read one existing SKILL.md under the same plugin. Default models:
 - `mol` → `plugins/mol/skills/note/SKILL.md`
 - `molexp` → `plugins/molexp/skills/adopt-workspace/SKILL.md`
 - `molq` → `plugins/molq/skills/jobs/SKILL.md`
-- `mol-plugin` → `plugins/mol-plugin/skills/check/SKILL.md`
 
 Match structure (not content): frontmatter (`name` + `description` + `argument-hint`), Codex adapter directive, H1 `/<plugin>:<skill>` heading, one-paragraph purpose, numbered Procedure, optional Guardrails, optional Idempotency, Output format.
 
@@ -137,14 +134,14 @@ Append one row to `plugins/<plugin>/README.md`'s skills table. Read the table fi
 
 Insert at bottom of the table, before the next non-table line. Edit nothing else in the README.
 
-### 8. Run `/mol-plugin:check`
+### 8. Run `/check`
 
-Invoke `/mol-plugin:check <plugin>` to confirm structural validation. Errors → fix before exiting.
+Invoke `/check <plugin>` to confirm structural validation. Errors → fix before exiting.
 
 ### 9. Suggest release follow-up
 
 If this skill should ship next release, tell user to run
-`/mol-plugin:release patch` (commit → push origin/fork → PR upstream →
+`/mol:release patch` (commit → push origin/fork → PR upstream →
 green checks → merge → `/mol:tag`). Don't run those — release timing is
 the user's call; never suggest `git push upstream`.
 
@@ -164,6 +161,6 @@ End with one-line F2 summary.
 - Resolved design (4-bullet recap of inputs / behavior / outputs / boundaries).
 - Plan: path + complete body preview.
 - Application: `created <path>` + one-line README row diff.
-- `/mol-plugin:check` verdict.
+- `/check` verdict.
 - Release follow-up prompt: one line, only if applicable.
 - Final summary (F2): one line.

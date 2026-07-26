@@ -196,8 +196,8 @@ and avoids failure emails to all watchers.
 | `/mol:commit [<msg>]` | Stage + commit gated on `/mol:ship commit` (format + lint + pre-commit). Generates a conventional-commit message from the diff if you don't supply one. Local only — does not push. | Whenever you'd run `git commit`. | `/mol:commit` &nbsp;·&nbsp; `/mol:commit fix: clamp distance in morse kernel` |
 | `/mol:push [<branch>]` | Push to **origin only** (fork), after full `pre-commit run --all-files` + `/mol:ship push` (CI parity). Auto-commits if dirty. **Never** pushes branches to `upstream`. | Whenever you'd run `git push` to your fork. | `/mol:push` |
 | `/mol:pr [<title>]` | Open a PR from `origin` → `upstream/<default_branch>` via `gh`. Calls `/mol:push` first. The **only** legal path onto the org default branch. Drafts title + body; idempotent if PR already open. | When the branch is ready to land on the canonical repo. | `/mol:pr` |
-| `/mol:release <patch\|minor\|major>` | **Ecosystem library** release end-to-end (not the harness). Dep/docs/harness gates → version bump → commit → push(origin) → pr → **wait green checks** → merge → `/mol:tag`. Distinct from `/mol-plugin:release`. | When shipping molrs / molpack / molpy / … to crates.io · PyPI · npm. | `/mol:release patch` |
-| `/mol:tag [<tag>]` | Push an existing release tag (created by `/mol:release` or `/mol-plugin:release`) to **upstream** so a `on: push: tags:` workflow fires. Refuses orphan tags and force overwrites. | After the release PR has merged. | `/mol:tag v0.2.0` |
+| `/mol:release <patch\|minor\|major>` | Release end-to-end for **any `mol*` repo** — libraries and the `molcrafts-harness` marketplace. Dep/docs/harness gates (or a project's `mol_project.release` `gate_skill`) → version bump (or `bump_skill`) → commit → push(origin) → pr → **wait green checks** → merge → `/mol:tag`. | Shipping molrs / molpack / molpy / … to crates.io · PyPI · npm, or cutting a marketplace release. | `/mol:release patch` |
+| `/mol:tag [<tag>]` | Push an existing release tag (created by `/mol:release`) to **upstream** so a `on: push: tags:` workflow fires. Refuses orphan tags and force overwrites. | After the release PR has merged. | `/mol:tag v0.2.0` |
 
 ## Common workflows
 
@@ -210,8 +210,7 @@ and avoids failure emails to all watchers.
 /mol:spec <feature>           # grill after write → auto /mol:impl-all
 /mol:impl-all <slug|prefix>   # simplify → docs Mode A (public) → auto close
 /mol:review                   # tier B free-form before commit
-/mol:release patch            # user-only; ecosystem libs
-/mol-plugin:release patch     # user-only; harness marketplace
+/mol:release patch            # user-only; libraries and the marketplace alike
 ```
 
 ### Bug fix
@@ -282,8 +281,8 @@ orthogonality, knowledge-locality, capability, workflow, output, and
 idempotency rules are spelled out — and audit-checked — in
 [`rules/design-principles.md`](rules/design-principles.md). Run
 `/mol:bootstrap` against any project's harness to verify
-compliance. (The marketplace repo itself has no harness; use
-`/mol-plugin:check` for its self-audit.)
+compliance. (The marketplace repo maintains itself as a `mol*` project;
+its project-local `/check` skill runs the self-audit.)
 
 ## Adopt in a project
 
