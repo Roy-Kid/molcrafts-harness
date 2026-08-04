@@ -35,9 +35,17 @@ RED → GREEN → REFACTOR. **Test artifacts only** — never production code.
 
 - One function/method per test (one concern). Fakes OK; full product paths are not.
 - **No e2e under `tests/`** (no multi-module stories, network, external subprocess, full-app boot).
+- **One module → its mirrored tests only** (iron law: high cohesion /
+  low coupling). Unit tests exercise **that** production unit with
+  fakes/stubs for outbound deps. Confirm RED/GREEN with
+  `$META.build.test_single` on the mirrored path — **never** require
+  full suite or sibling-module real implementations to prove the unit.
+  If the unit cannot be tested in isolation → refuse / report coupling
+  debt; do not paper over with broader tests.
 
 | Need | Where |
 |---|---|
+| Single module / single function | `tests/` (mirrored path) + `test_single` |
 | Repeatable public-API scenario | `regressions/<slug>.*` at repo root |
 | One-off probe | `tmp/` (not suite) |
 | Third-party / literature oracle | Offline once → **hard-code** goldens in `regressions/` |
@@ -80,6 +88,8 @@ pytest / rust tests / gtest / vitest — under `tests/`, single-function; e2e �
 
 - RED before GREEN; never weaken tests.
 - Layout + naming mirror; no e2e in `tests/`; goldens hard-coded.
+- Module isolation: unit green via `test_single` only; no full-suite
+  dependency for unit correctness.
 - Domain mandatory when `science.required`.
 - Type-safe tests (no `any`/`Any` escapes).
 

@@ -155,9 +155,10 @@ Condensed from `rules/design-principles.md`. Focus on structural drift; skip con
 - `CLAUDE.md` — line-count it. ≤ ~150 lines soft budget. Flag if it embeds large rule sets.
 - **Design preferences** — managed section should include
   `## Design preferences (default)` (OOP / no factories / no god data /
-  no all-in-one API) **and** the **Iron law — no silent debt**
-  subsection. Missing when mol contract is opted-in → 🟡 repair
-  via managed-section refresh.
+  no all-in-one API) **and** both iron-law subsections:
+  **no silent debt** + **high cohesion, low coupling** (unit tests
+  isolate the module; no full-suite to green a unit). Missing when
+  mol contract is opted-in → 🟡 repair via managed-section refresh.
 
 For projects with `mol_project:` frontmatter:
 - `specs_path` → under `.claude/specs/`. Flag if `docs/`, `.claude/notes/`, or bare `.claude/`.
@@ -346,6 +347,34 @@ in the surface you touch or depend on → **prioritize or hard-stop**:
 Outranks "stay in scope" / "minimal diff" when those mean knowingly
 leaving rot you already saw.
 
+### Iron law — high cohesion, low coupling (all modules)
+
+**Every module** (file / type / package) is a self-contained unit.
+This is a **product** iron law for all MolCrafts code — not optional
+style. It applies to every file, not only "important" ones.
+
+- **High cohesion** — one clear responsibility; everything in the
+  module serves that responsibility. Split when a unit accumulates
+  more than one coherent job.
+- **Low coupling** — depend only on narrow, explicit interfaces
+  (constructor args, method params, small protocols/traits). No
+  reach-through into other modules' internals; no ambient god
+  context; no hidden global registries required to exercise the unit.
+
+**Unit-test consequence (hard):** proving a module works uses **only
+that module's unit tests** under `tests/` (path mirrors the module),
+with fakes/stubs for outbound deps. The unit-test loop is
+`$META.build.test_single` on the mirrored path — **not** full-suite
+and **not** cross-module regression. Full suite (`$META.build.test`)
+and `regressions/` are CI / public-API nets; they are **not** how you
+green a unit during design or implementation.
+
+If a change "only works when the whole suite runs", or a unit test
+must boot sibling modules' real implementations / the full app /
+network / external processes → the design is too coupled. **Stop**,
+split the boundary, inject the dependency, or route `/mol:refactor`.
+Do not "fix it with more integration tests."
+
 ### Prefer
 
 - **OOP by default.** Domain concepts are types with methods
@@ -358,6 +387,10 @@ leaving rot you already saw.
 - **Inline until the second real use.** A helper used in exactly one
   place stays inline (or a private method on the owning type). Extract
   only at a second call site, or when a unit test must target that unit.
+- **Testable-in-isolation boundaries.** Dependencies enter through
+  explicit seams (params, interfaces) so the unit can be exercised
+  with fakes. A module you cannot unit-test without its real graph
+  is unfinished design.
 
 ### Forbid
 
@@ -374,6 +407,10 @@ leaving rot you already saw.
   `compute_all` / `pipeline` that hides multi-step work. Composition
   is the **caller's** job (scripts, docs examples, `regressions/`).
   The library exposes primitives only.
+- **Coupling that forces full-graph testing.** No hidden cross-module
+  state, import-time side effects, or hard-wired concrete
+  collaborators that make `$META.build.test_single` on the module's
+  own tests insufficient.
 
 ### Shape check (before adding a public symbol)
 
@@ -382,14 +419,18 @@ leaving rot you already saw.
 3. Only one in-tree call site? → do not extract.
 4. Tempted to hang another field on a "context" bag? → new parameter
    or smaller type instead.
+5. Can this unit's tests pass via `test_single` with fakes only?
+   If no → redesign the seam before coding.
 
 ### Tests (default)
 
 - Unit tests **only** under `tests/`, path mirrors source
   (`src/foo/boo.py` → `tests/test_foo/test_boo.py`), types mirror
   (`FooClass` → `TestFooClass`). Single-function tests — no e2e under
-  `tests/`. Public-API scenarios → `regressions/` with **hard-coded**
-  goldens (no live third-party oracles). Details: `tester` agent.
+  `tests/`. **One module → its mirrored tests only**; unit green does
+  not require full suite. Public-API scenarios → `regressions/` with
+  **hard-coded** goldens (no live third-party oracles). Details:
+  `tester` agent.
 
 ## Default workflow
 

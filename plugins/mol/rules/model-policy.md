@@ -13,24 +13,17 @@ session-model changes.
 | **Advisor** (顾问模式) | words — an answer, plan, verdict, or diagnosis | the main conversation (session model, top tier) | gather evidence only |
 | **Orchestration** (编排模式) | artifacts — code, docs, specs, commits | opus-class producer agents | author the artifacts |
 
-- Advisor skills: `/mol:discuss`, `/mol:grill` (user entry),
-  `/mol:grilling` (body — still advisor even when auto-invoked from
-  orchestration), `/mol:debug`, `/mol:review`, `/mol:test`,
-  `/mol:ship`, `/mol:litrev`, `/mol:note`, `/mol:map`. The judgment
-  in the deliverable is the top model's own; reviewer agents feed it
-  findings.
-- Orchestration skills: `/mol:spec`, `/mol:impl`, `/mol:impl-all`,
-  `/mol:debug`, `/mol:refactor`, `/mol:docs`, `/mol:simplify`, and the
-  git chain. The main loop plans, routes, gates, and verifies.
+- Advisor: deliverable is words (plan, verdict, diagnosis). Main
+  conversation authors; agents gather evidence. e.g. discuss, grill,
+  review, test, ship, litrev, note, map.
+- Orchestration: deliverable is artifacts. Main loop plans/routes/gates;
+  producers write. e.g. spec, impl, impl-all, debug, refactor, docs,
+  simplify, git chain.
 
-Invoker class (user vs model — who may *fire* the skill) is orthogonal
-to advisor/orchestration (what the skill *delivers*). Free-form
-auto-trigger tiers (A–E) are a third axis: how aggressively natural
-language should load the skill. See
-`plugins/mol/rules/design-principles.md` § 2.5–2.6. Example:
-`/mol:grilling` is advisor + model-invoked + tier A (has plan);
-`/mol:spec` is orchestration + model-invoked + tier C (one-sentence
-ignition) and auto-invokes grilling after persist.
+Orthogonal axes (see design-principles § 2.5–2.6): invoker (who may
+fire), free-form tier (how aggressively NL loads). Example: `/mol:grill`
+= advisor + model-invoked + tier A (has plan); `/mol:spec` =
+orchestration + model-invoked + tier C, auto-invokes grill after persist.
 
 A skill's mode follows its deliverable, not a flag. A skill that both
 answers and writes (e.g. `/mol:spec`) is orchestration: the persisted

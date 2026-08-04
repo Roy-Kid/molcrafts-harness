@@ -485,9 +485,8 @@ class Validator:
             )
             self.error(
                 skill_md if skill_md.is_file() else self.root / "plugins" / plugin,
-                f"/{plugin}:{skill} is user-invoked (disable-model-invocation: true) "
-                "but another skill auto-invokes it — make it model-invoked, or "
-                "auto-invoke a model-invoked body instead",
+                f"/{plugin}:{skill} is user-invoked but another skill auto-invokes "
+                "it — make the target model-invoked (one verb = one skill)",
             )
 
     def report(self, quiet: bool) -> int:

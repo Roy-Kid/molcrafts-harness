@@ -29,9 +29,10 @@ mol_project:
     coverage: "pytest --cov=src/molpy tests/"
   arch:
     style: layered
-    # Bootstrap default: Design preferences (OOP/primitives). Point at a
-    # richer "## Architecture" heading when layer-import rules live there;
-    # agents still always load "## Design preferences (default)" if present.
+    # Bootstrap default: Design preferences (OOP + cohesion/coupling iron
+    # law + primitives). Point at a richer "## Architecture" heading when
+    # layer-import rules live there; agents still always load
+    # "## Design preferences (default)" if present.
     rules_section: "## Design preferences (default)"
   doc:
     style: google
@@ -111,7 +112,7 @@ for the authoritative table):
 | Key              | Type   | Notes                                                             |
 |------------------|--------|-------------------------------------------------------------------|
 | `style`          | enum   | `layered` / `crate-graph` / `backend-pillars` / `package-tree` / `monorepo` — picks the dependency-rule template the architect agent applies |
-| `rules_section`  | string | Exact heading in CLAUDE.md (or a linked notes page) for layer/import rules. Bootstrap defaults this to `## Design preferences (default)` (OOP + primitive APIs). Projects with a separate layer map may set `## Architecture` instead; **`## Design preferences (default)` is still always loaded when present** by architect / implementer / spec-writer |
+| `rules_section`  | string | Exact heading in CLAUDE.md (or a linked notes page) for layer/import rules. Bootstrap defaults this to `## Design preferences (default)` (OOP + high cohesion/low coupling + primitive APIs). Projects with a separate layer map may set `## Architecture` instead; **`## Design preferences (default)` is still always loaded when present** by architect / implementer / spec-writer |
 
 ### `doc` (required, object)
 

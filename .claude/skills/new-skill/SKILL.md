@@ -48,8 +48,9 @@ Extract from description + prior conversation:
 - **Behavior.** Decisive verbs (probe? generate? gate? delegate? orchestrate?). Branches (success/failure; converge/discard; PROCEED/BLOCK).
 - **Outputs.** Files written, agents invoked, user-facing shape, F2 one-line summary.
 - **Boundaries.** Read-only vs writing; what it refuses to touch; relation to neighbors (`/mol:spec` vs `/mol:note`, `/mol:debug` vs `/mol:impl`).
-- **Invoker class.** **User-invoked** (`disable-model-invocation: true` + `agents/openai.yaml` with `policy.allow_implicit_invocation: false`) when only the human should fire it and **no** sibling will auto-invoke it. **Model-invoked** (omit the flag; optional `allow_implicit_invocation: true`) when the model or another skill must reach it. **Invoker rule:** if skill A auto-invokes skill B, B is model-invoked. See `plugins/mol/rules/design-principles.md` § 2.5. Prefer a thin user entry + model-invoked body only when the same procedure needs both deliberate typing and auto-call (e.g. `/mol:grill` → `/mol:grilling`).
-- **Free-form tier (A–E).** For model-invoked skills, pick a tier from § 2.6 and bake **trigger phrases** (Chinese + English) plus when *not* to fire into `description` — that description is the always-on index card. Do not create a second skill file just for indexing.
+- **Form.** One verb = one skill (+ agents if needed). Never two skills for the same verb (no entry/body pair). Skill → skill only for a *different* verb.
+- **Invoker.** Default model-invoked. User-only (`disable-model-invocation: true` + yaml `allow_implicit_invocation: false`) only when no sibling/free-form may fire it. Auto-invoke targets must be model-invoked. See design-principles § 2.5.
+- **Free-form tier (A–E).** Put zh/en triggers + when-not in `description` (§ 2.6). Description is the index — do not add a second skill for indexing.
 
 Any unclear → **ask 1–2 targeted questions**. Never write with gaps.
 

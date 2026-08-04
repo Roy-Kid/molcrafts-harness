@@ -71,30 +71,18 @@ Notes are kept; specs are intentionally ephemeral. Full rules in
 Every skill runs in one of two modes, defined in
 [`rules/model-policy.md`](rules/model-policy.md):
 
-- **Advisor (顾问模式)** — the deliverable is words: an answer, plan,
-  verdict, or diagnosis. The main conversation (session model, top
-  tier) authors it; agents only gather evidence. (`/mol:discuss`,
-  `/mol:grill` / `/mol:grilling`, `/mol:review`,
-  `/mol:test`, `/mol:ship`, …)
-- **Orchestration (编排模式)** — the deliverable is artifacts: code,
-  docs, specs, commits. The main loop plans, routes, gates, and
-  verifies; opus-class producer agents author the artifacts — the
-  main loop never authors production source (`implementer` writes
-  code, `tester` tests, `documenter` docs). (`/mol:impl`, `/mol:debug`,
-  `/mol:spec`, the git chain, `/mol:release`, …)
+- **Advisor** — deliverable is words; main conversation authors;
+  agents gather evidence (`discuss`, `grill`, `review`, `test`, …).
+- **Orchestration** — deliverable is artifacts; main loop
+  plans/routes/gates; producers write (`implementer` / `tester` /
+  `documenter`; never production source in the main loop).
 
-Orthogonal to mode: **user- vs model-invoked** skills (who may fire
-them). User-only entries set `disable-model-invocation: true` (Claude)
-and `allow_implicit_invocation: false` (Codex). Anything auto-invoked
-by another skill must stay model-invoked. Full rule in
-[`rules/design-principles.md`](rules/design-principles.md) § 2.5.
-Example: thin `/mol:grill` (user) → body `/mol:grilling` (model;
-called by discuss + spec).
+Default skills are **model-invoked** (user, free-form, or sibling).
+User-only only when nothing else may fire them (`release`). Form:
+**one verb = one skill + agents** — not entry/body dual skills. See
+[`rules/design-principles.md`](rules/design-principles.md) § 2–2.6.
 
-Agents pin their model tier in frontmatter — `opus` for judgment,
-`sonnet` for mechanical work, `haiku` for `/mol:impl-all`'s completion
-evaluator — so the strongest model stays on planning and verdicts
-while execution runs on the tier each task needs.
+Agents pin `opus` / `sonnet` / `haiku` in frontmatter.
 
 ## Skills
 
@@ -121,16 +109,15 @@ reach for it, and a one-line example.
 
 | Skill | What | When | Example |
 |---|---|---|---|
-| `/mol:bootstrap` | Initialize or maintain the agent harness. Managed CLAUDE.md includes **Design preferences (default)** (OOP, no factories, no god data, no all-in-one APIs, tests-mirror-src) and the **iron law — no silent debt** (discovered anti-patterns / pre-existing failures are prioritized or hard-stop routed, never ignored). Three paths: create / audit+repair / no-op. Never writes project source. | First time in a project; after upgrading mol; when harness has drifted. | `/mol:bootstrap` |
+| `/mol:bootstrap` | Initialize or maintain the agent harness. Managed CLAUDE.md includes **Design preferences (default)** (OOP, high cohesion / low coupling, no factories, no god data, no all-in-one APIs, tests-mirror-src) and two iron laws — **no silent debt** (discovered anti-patterns / pre-existing failures are prioritized or hard-stop routed, never ignored) and **high cohesion, low coupling** (unit tests isolate the module; full suite is CI, not the unit gate). Three paths: create / audit+repair / no-op. Never writes project source. | First time in a project; after upgrading mol; when harness has drifted. | `/mol:bootstrap` |
 
 ### 1 — Plan & specify
 
 | Skill | What | When | Example |
 |---|---|---|---|
-| `/mol:discuss <topic>` | Free-form design discussion with `Convergence pulse`. **Tier A** free-form auto (该不该做 / trade-offs). Converge → auto `/mol:grilling` (plan); discard → no artifacts. Hard 8-turn cap. Never auto-invokes `/mol:spec` (tier C ignition: 落盘 / 写 spec). | Requirement not clear enough for `/mol:spec`. | `/mol:discuss should /mol:perf own remote bench runs?` |
-| `/mol:grill <plan>` | **User-only entry** (`disable-model-invocation: true`). Thin wrapper → `/mol:grilling` plan mode. Free-form/model paths call `/mol:grilling` directly. | Deliberately typing a grill session. | `/mol:grill cache force results per-frame keyed on neighbor-list hash` |
-| `/mol:grilling [mode] <plan\|slug>` | **Model-invoked** body (**tier A** when a plan exists). Modes: **plan** → sharpened plan + tier C handoff to spec; **spec-audit** → `clean \| supersede_needed`. Auto from discuss/spec; free-form 盘问/grill. | Auto or free-form stress-test. | `/mol:grilling mode:spec-audit morse-bond` |
-| `/mol:spec` | Requirement → `<slug>.md` + acceptance under `.claude/specs/`, then auto grill (spec-audit) → clean auto `impl-all`. **Tier C** — say 落盘 / 写 spec (slash optional); never silent from discuss/grilling. | Binding artifact for non-trivial work. | `/mol:spec add Morse bond potential to molpy` |
+| `/mol:discuss <topic>` | Design discussion + Convergence pulse. **Tier A**. Converge → auto `/mol:grill` (plan); discard → no artifacts. 8-turn cap. Never auto `/mol:spec` (tier C: 落盘 / 写 spec). | Requirement not clear enough for `/mol:spec`. | `/mol:discuss should /mol:perf own remote bench runs?` |
+| `/mol:grill [mode] <plan\|slug>` | One-question interview (**tier A** when plan exists). **plan** → sharpened plan + tier C handoff; **spec-audit** → `clean \| supersede_needed`. Auto from discuss/spec; free-form 盘问/grill. | Stress-test a plan or written spec. | `/mol:grill mode:spec-audit morse-bond` |
+| `/mol:spec` | Requirement → spec + acceptance, auto grill (spec-audit), clean → auto `impl-all`. **Tier C** — 落盘 / 写 spec; never silent from discuss/grill. | Binding artifact for non-trivial work. | `/mol:spec add Morse bond potential to molpy` |
 | `/mol:litrev` | Literature + reference-implementation review (gated on `mol_project.science.required`). Returns equations, validation targets, open questions. | Before specifying a domain-critical feature. | `/mol:litrev Nose-Hoover thermostat` |
 
 ### 2 — Implement (writes code)
@@ -205,8 +192,8 @@ and avoids failure emails to all watchers.
 
 ```
 /mol:litrev <topic>           # only if science.required and you need refs
-/mol:discuss <topic>          # tier A free-form; converges → auto /mol:grilling (plan)
-# …or say 落盘 / 写 spec after grill (tier C) — slash optional
+/mol:discuss <topic>          # tier A; converges → auto /mol:grill (plan)
+# …or 落盘 / 写 spec after grill (tier C)
 /mol:spec <feature>           # grill after write → auto /mol:impl-all
 /mol:impl-all <slug|prefix>   # simplify → docs Mode A (public) → auto close
 /mol:review                   # tier B free-form before commit
@@ -272,17 +259,11 @@ CHANGES; otherwise APPROVE.
 
 ## Design contract
 
-The plugin follows the harness-engineering layering plus a strict
-two-layer model (skill = orchestrator + workflow; agent = single
-expertise axis). The producer-vs-reviewer split — why `tester`
-writes but `optimizer` doesn't — is documented in
-[`rules/agent-design.md`](rules/agent-design.md). Layering,
-orthogonality, knowledge-locality, capability, workflow, output, and
-idempotency rules are spelled out — and audit-checked — in
-[`rules/design-principles.md`](rules/design-principles.md). Run
-`/mol:bootstrap` against any project's harness to verify
-compliance. (The marketplace repo maintains itself as a `mol*` project;
-its project-local `/check` skill runs the self-audit.)
+Harness form: **one verb = one skill + agents**; skill → skill only
+for a different verb. Producer vs reviewer:
+[`rules/agent-design.md`](rules/agent-design.md). Full rules + audit:
+[`rules/design-principles.md`](rules/design-principles.md). Project
+check: `/mol:bootstrap`; marketplace self-check: project-local `/check`.
 
 ## Adopt in a project
 

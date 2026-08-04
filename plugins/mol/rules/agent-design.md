@@ -5,16 +5,14 @@ others are read-only. The asymmetry is principled, not accidental.
 
 ## Two-layer model
 
-`mol` separates concerns across two layers:
+**One verb = one skill + 0..N agents.** Nest is skill → agent, not skill → skill for the same verb.
 
 | Layer | Who | Job |
 |---|---|---|
-| **Skill** (`plugins/mol/skills/<name>/SKILL.md`) | the orchestrator | parses arguments, fans out, gates with build/test, applies patches, reverts on regression, decides routing |
-| **Agent** (`plugins/mol/agents/<name>.md`) | the single-axis specialist | reads code, produces findings or content along *one* axis, returns text |
+| **Skill** | thin orchestrator | args, order, gates, multi-turn, handoffs, when to delegate |
+| **Agent** | single-axis specialist | findings or artifacts on that axis only |
 
-Skills compose agents. Agents do not compose skills, and do not
-call other agents — the skill is the only orchestrator
-(design-principles rule O2).
+Skills compose agents. Agents never call agents (O2). Skill → skill only for a *different* verb (e.g. impl → simplify).
 
 ## Producer vs reviewer
 
@@ -47,7 +45,7 @@ disk.
 
 | Agent | Produces | Why the skill writes, not the agent |
 |---|---|---|
-| `spec-writer` | spec body + acceptance.md | the spec is the binding contract for an entire feature — it must pass user approval (`/mol:spec` Step 6) before being persisted. The agent returns the draft; the skill negotiates and writes. |
+| `spec-writer` | spec body + acceptance.md | binding contract; agent drafts, skill persists. |
 
 ### Reviewer agents (read-only)
 
