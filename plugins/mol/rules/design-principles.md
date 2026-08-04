@@ -9,8 +9,8 @@ having to re-derive the rules.
 
 These principles are enforced by `/mol:bootstrap`. Run it against
 any project that has been bootstrapped with the mol harness to check
-compliance. (The `molcrafts-harness/` marketplace repo itself has no
-harness — use `/mol-plugin:check` for its self-audit.)
+compliance. (The `molcrafts-harness/` marketplace repo maintains itself
+as a `mol*` project — its project-local `/check` skill runs the self-audit.)
 
 ## 0. Harness Engineering
 
@@ -45,6 +45,34 @@ style:
 Skills that snapshot "pre-existing red" for *their own* regression
 gates (e.g. `/mol:simplify`) must still **surface** those failures as
 priority debt and must not treat silence as success.
+
+### 0.2 Project iron law — high cohesion, low coupling
+
+Also shipped under CLAUDE.md `## Design preferences (default)`, next
+to the OOP defaults. **Every module** (file / type / package) in a
+MolCrafts product is constrained:
+
+- **High cohesion** — one clear responsibility per module; split when
+  a unit accumulates more than one coherent job.
+- **Low coupling** — depend only on narrow, explicit seams
+  (constructor args, method params, small protocols/traits). No
+  reach-through into other modules' internals; no ambient god
+  context required to exercise the unit.
+
+**Unit-test consequence (the operational definition of this law):**
+a module is green when **its own** mirrored unit tests under `tests/`
+pass via `$META.build.test_single`. Fakes/stubs cover outbound deps.
+You do **not** need full-suite (`$META.build.test`) or cross-module
+regression to prove the unit. Full suite and `regressions/` are CI /
+public-API nets — not the unit-test loop during design or impl.
+
+If unit tests only pass when the whole product graph boots, the
+design is too coupled → stop and split / inject / `/mol:refactor`.
+Do not compensate with more integration tests.
+
+Enforced by: bootstrap managed section + `architect` (coupling /
+isolation anti-patterns) + `tester` (unit scope = one module) +
+`implementer` / `spec-writer` (Design preferences).
 
 ## 1. Four-Zone Layering
 
@@ -134,131 +162,101 @@ layout.
 ## 2. Two-Layer Model
 
 ```
-user ──▶ /skill  (workflow + orchestration, user-invocable)
-              │
-              ▼
-          agent  (single expertise axis, never user-invocable directly)
-              │
-              ▼
-       tools (Read, Grep, Glob, Bash, sometimes Write/Edit)
+user / free-form / sibling skill
+        │
+        ▼
+   /skill  (one verb — thin orchestration)
+        │
+        ▼
+   agent × N  (single expertise axis; never user-invocable)
+        │
+        ▼
+   tools
 ```
 
-- **Skill** = a *verb* the user types (`/mol:impl`, `/mol:debug`). Owns
-  the *procedure*: scope assessment, ordering, parallel fan-out, when
-  to delegate, how to aggregate. A skill is short — it reads
-  CLAUDE.md, classifies the request, calls one or more agents,
-  summarizes.
-- **Agent** = a *role* with one expertise. Owns *checks, knowledge,
-  and edits inside its domain*. Stateless across invocations. Reached
-  only through a skill.
+**One verb = one skill + 0..N agents.**
 
-The two layers must not collapse. A skill must not contain expert
-knowledge that belongs in an agent. An agent must not contain workflow
-choreography that belongs in a skill.
+| Layer | Owns | Does not own |
+|---|---|---|
+| **Skill** | procedure: order, gates, multi-turn, handoffs, when to delegate | expert catalogs, long domain checks |
+| **Agent** | one expertise axis: findings or artifacts in that axis | workflow, calling other agents, full-suite gates |
 
-Which model runs each layer — the two conversation modes
-(advisor / orchestration) and the opus / sonnet / haiku agent tiers —
-is defined in `plugins/mol/rules/model-policy.md`; in orchestration
-mode the main loop never authors production source.
+- Skill stays thin relative to agents (orchestration, not encyclopedia).
+- Skill → agent is the default nest. Skill → skill only for a **different
+  verb** (e.g. `/mol:impl` → `/mol:simplify`). **Never** two skills for
+  the same verb (no entry/body pair).
+- Agent never calls agents (O2). Skill is the only orchestrator.
 
-## 2.5 Skill Invokers (user vs model)
+Modes (advisor vs orchestration) and agent model tiers:
+`plugins/mol/rules/model-policy.md`.
 
-Skills have a second axis beyond advisor/orchestration: **who may
-fire them**. Borrowed from the [mattpocock productivity skills](
-https://github.com/mattpocock/skills/tree/main/skills/productivity)
-pattern (thin user entry + model-reachable body).
+### 2.5 Invokers (who may fire a skill)
 
-| Kind | Claude frontmatter | Codex (`skills/<name>/agents/openai.yaml`) | Who can fire it | Cost |
-|---|---|---|---|---|
-| **User-invoked** | `disable-model-invocation: true` | `policy.allow_implicit_invocation: false` | Only the user typing the name | Zero description **context load**; pays human **cognitive load** |
-| **Model-invoked** | omit the flag (default) | omit, or `allow_implicit_invocation: true` | User, model, **or another skill** | Description sits in the window every turn |
+Default: **model-invoked** (user, free-form, or sibling).
 
-**Invoker rule.** If skill A auto-invokes skill B, B **must** be
-model-invoked. User-invoked is only for deliberate human entry points
-that no workflow must call. A user-invoked skill cannot be reached by
-the model or by siblings — that is the point, and the footgun.
+| | Claude | Codex (`agents/openai.yaml`) |
+|---|---|---|
+| **Model-invoked** (default) | omit flag | omit or `allow_implicit_invocation: true` |
+| **User-only** | `disable-model-invocation: true` | `allow_implicit_invocation: false` |
 
-**When to split by invocation** (not every skill needs a pair):
+- Sibling auto-invoke target **must** be model-invoked.
+- User-only only when no sibling and no free-form may fire it (e.g.
+  `/mol:release`). No second skill for the same verb.
+- Frontmatter `description` is the free-form index (zh/en triggers +
+  when not to fire). Do not add a skill file just for indexing.
 
-- Keep **one** skill when it is only ever typed by hand *or* only
-  ever reached as a subroutine — not both.
-- Split into a **thin user entry** + **model-invoked body** when the
-  same procedure must be (a) deliberately typed and (b) auto-invoked
-  by other skills. Example: `/mol:grill` (user-only entry) → runs
-  `/mol:grilling` (body; called by `/mol:discuss` and `/mol:spec`).
-
-Pick model-invocation only when the agent must reach the skill on its
-own, or another skill must. If it only ever fires by hand and nothing
-in the chain calls it, make it user-invoked and pay no context load.
-
-**Description = the index card.** For model-invoked skills, free-form
-auto-trigger is driven by a good frontmatter `description` (intent
-phrases in Chinese and English, when *not* to fire, sibling boundaries).
-That is the always-on index; the full `SKILL.md` body loads only when
-the Skill tool runs. Do **not** invent a second thin skill file just
-to hold an index — dual files (`/mol:grill` + `/mol:grilling`) are only
-for the invoker split above.
-
-Canonical plan chain under this rule:
+Plan chain:
 
 ```
-/mol:discuss ──converge──▶ /mol:grilling (plan)
+/mol:discuss ──converge──▶ /mol:grill (plan)
                               │
-                              ▼ (user says 落盘 / 写 spec — not silent)
-                          /mol:spec ──persist──▶ /mol:grilling (spec-audit)
-                                                    │ holes → supersede in place
-                                                    │ clean → /mol:impl-all (auto)
+                              ▼ (user: 落盘 / 写 spec — not silent)
+                          /mol:spec ──persist──▶ /mol:grill (spec-audit)
+                                                    │ holes → supersede
+                                                    │ clean → /mol:impl-all
                                                               │
                                                               ▼
-                                                    simplify → docs Mode A
-                                                    (public surface) → close
+                                                    simplify → docs Mode A → close
 ```
 
-### 2.6 Free-form auto-trigger (tiers A–E)
+### 2.6 Free-form tiers (A–E)
 
-Operators should not need to type `/mol:…` for routine intent. The
-model matches natural language to model-invoked skills. Use tiers so
-"lazy" does not become "silent irreversible work."
+Natural language loads model-invoked skills. Tiers limit silent irreversible work.
 
-| Tier | Meaning | Free-form? | Examples |
-|---|---|---|---|
-| **A** | Must load the skill on matching intent; prefer chain auto where listed | Yes | `discuss`, `grilling` (has plan), `simplify`, `docs` Mode A, `note` (harness sync) |
-| **B** | Load on clear scene match; skip casual turns | Yes, scoped | `debug`, `fix`, `review`, `map`, `test`, `litrev`, `ci-sync` |
-| **C** | One-sentence ignition — user affirms; no silent fire | Oral OK, no slash required | `spec`, `commit`, `push`, `pr`, `refactor`, `bootstrap`, `docs` Mode B |
-| **D** | Chain/subroutine only; weak free-form need | Via siblings | `close`, `ship`, `tag`, `impl` after spec, `bench`/`web` when owed |
-| **E** | Model must not silent-fire | User-only or hard gate | `grill` entry, `release`, `mol-plugin:release` |
+| Tier | Free-form | Examples |
+|---|---|---|
+| **A** | Yes — match intent | `discuss`, `grill` (has plan), `simplify`, `docs` Mode A, `note` |
+| **B** | Yes, scoped scene | `debug`, `review`, `map`, `test`, `litrev`, `ci-sync` |
+| **C** | Oral ignition, no silent fire | `spec`, `commit`, `push`, `pr`, `refactor`, `bootstrap`, `docs` Mode B |
+| **D** | Via siblings / chain | `close`, `ship`, `tag`, `impl` after spec, `perf` when owed |
+| **E** | User-only | `release` |
 
-**Rules.** (1) A/B: put zh/en triggers in `description`. (2) C: oral
-ignition OK ("落盘", "提交吧") — still needs affirmative intent.
-(3) Never silent-auto `spec` from discuss/grill. (4) `docs` Mode A =
-tier A (impl public surface); Mode B = tier C only. (5) No dual-file
-index pairs — description *is* the index.
+Rules: A/B put triggers in `description`. C needs affirmative intent
+("落盘", "提交吧"). Never silent-auto `spec` from discuss/grill.
+`docs` Mode A = A; Mode B = C.
 
 ### Autonomy boundary
 
-**Interactive (may wait on the human):** only `/mol:discuss`, `/mol:grill`,
-`/mol:grilling`, and the interview turns inside `/mol:spec`'s post-persist
-grill. Planning decisions are human. Spec *ignition* is human (tier C)
-even when the model loads `/mol:spec` without a slash.
+**Interactive (may wait):** `/mol:discuss`, `/mol:grill`, and
+`/mol:spec` post-persist grill turns. Spec ignition is human (tier C).
 
-**Fully agent-driven (never wait for approval / "what next?"):** implement,
-close, simplify, docs Mode A (public-surface), commit, push, pr, tag,
-release, bench, web, ship gates, fix/refactor apply loops once kicked,
-bootstrap repairs that are mechanical. Closing a spec is **never** the
-human's job — `/mol:close` auto-runs evaluators and agent-auto-attests
-remaining criteria.
+**Fully agent-driven:** impl, close, simplify, docs Mode A, commit,
+push, pr, tag, release, perf, ship, debug/refactor apply once kicked,
+mechanical bootstrap repairs. Closing a spec is never the operator's
+job — `/mol:close` auto-runs evaluators and agent-auto-attests.
 
-Two publish chains (never mix them). Both follow
+One publish chain for every `mol*` repo, following
 `plugins/mol/rules/git-publish.md` (pre-commit ≡ CI; **origin = fork**
 branch push only; **upstream = canonical** via PR → green checks →
 merge; never direct-push branches to upstream):
 
-- **Harness marketplace:** `/mol-plugin:release` → commit → push(origin)
-  → pr → green checks → merge → tag (`molcrafts-harness` only).
-- **Ecosystem libraries:** `/mol:release` → dep/docs/harness gates →
-  version bump → commit → push(origin) → pr → green checks → merge →
-  tag. Dependencies on the official registry **before** dependents;
-  tag-triggered CI publishes to crates.io / PyPI / npm when configured.
+- **`/mol:release`** → gates (or a repo's `mol_project.release` `gate_skill`)
+  → version bump (or `bump_skill`) → commit → push(origin) → pr → green
+  checks → merge → tag. This covers both ecosystem libraries and the
+  `molcrafts-harness` marketplace — the marketplace declares
+  `bump_skill: release-bump` + `gate_skill: check`. Dependencies on the
+  official registry **before** dependents; tag-triggered CI publishes to
+  crates.io / PyPI / npm when configured.
 
 ## 3. Why This Split
 
@@ -350,6 +348,9 @@ See Section 1.
 - **O4.** A skill does not contain expert knowledge. If a check is
   non-trivial enough to need worked examples or reference data, it
   belongs in an agent.
+- **O5.** One verb = one skill. Never an entry/body skill pair for the
+  same procedure. Skill → skill only when the callee is a different
+  user verb.
 
 ### Knowledge locality (K)
 
@@ -459,6 +460,8 @@ tree. Output one finding per row: `<emoji> file:line — message` (🚨 /
 - [ ] Do skills name delegates explicitly? (O3)
 - [ ] Does any skill embed expert knowledge that belongs in an agent?
       (O4)
+- [ ] One skill file per verb — no entry/body dual skills? Skill →
+      skill only for a different verb? (O5)
 
 ### Knowledge
 
@@ -539,5 +542,8 @@ discipline. The audit flags each as 🟡 or higher.
   in `.claude/notes/open-questions.md` instead.
 - **Agent calling agent.** Implicit routing through agent bodies.
   Cure: hoist orchestration into a skill.
+- **Entry/body dual skills.** Two skill files for one verb (thin
+  user entry wrapping a body skill). Cure: one model-invoked skill;
+  user-only only when the whole verb must never auto-fire.
 - **One-shot skills with no idempotency.** Re-running them duplicates
   files or clobbers user content. Cure: detect and merge.

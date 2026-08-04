@@ -1,14 +1,12 @@
 ---
 name: new-skill
-description: Scaffold one shared Claude-first skill inside a MolCrafts plugin, including Codex-compatible metadata and adapter linkage, without creating a duplicate workflow. Updates the plugin README and runs `/mol-plugin:check`.
+description: Scaffold one shared Claude-first skill inside a published MolCrafts plugin (mol/molexp/molq), including Codex-compatible metadata and adapter linkage, without creating a duplicate workflow. Updates the plugin README and runs `/check`. Project-local to this repo.
 argument-hint: "<plugin:skill-name> [<one-line description>]"
 ---
 
-> **Codex:** Read `../CODEX.md` before executing this shared workflow. Claude Code follows the workflow directly.
+# /new-skill — Skill Scaffold
 
-# /mol-plugin:new-skill — Skill Scaffold
-
-Scaffold a new skill in this marketplace (e.g. `mol:perf`, `mol-plugin:audit-templates`).
+Scaffold a new skill into a published plugin (e.g. `mol:perf`, `molq:watch`).
 
 Write surface: `plugins/<plugin>/skills/<skill-name>/SKILL.md` + one appended row in `plugins/<plugin>/README.md`'s skills table. Reuse the plugin's existing `skills/CODEX.md`; never create a second Codex copy of the workflow. Never touch existing skills, plugin manifests, or marketplace metadata.
 
@@ -26,7 +24,7 @@ Form: `<plugin>:<skill-name> [<description>]`.
 
 Validate:
 
-- `<plugin>` ∈ `mol`, `molexp`, `molq`, `mol-plugin` (or another existing dir under `plugins/`).
+- `<plugin>` ∈ `mol`, `molexp`, `molq` (or another existing dir under `plugins/`).
 - `<skill-name>` is kebab-case, no spaces, not already taken.
 - Description, if given, is one sentence.
 
@@ -39,7 +37,6 @@ Read one existing SKILL.md under the same plugin. Default models:
 - `mol` → `plugins/mol/skills/note/SKILL.md`
 - `molexp` → `plugins/molexp/skills/adopt-workspace/SKILL.md`
 - `molq` → `plugins/molq/skills/jobs/SKILL.md`
-- `mol-plugin` → `plugins/mol-plugin/skills/check/SKILL.md`
 
 Match structure (not content): frontmatter (`name` + `description` + `argument-hint`), Codex adapter directive, H1 `/<plugin>:<skill>` heading, one-paragraph purpose, numbered Procedure, optional Guardrails, optional Idempotency, Output format.
 
@@ -51,8 +48,9 @@ Extract from description + prior conversation:
 - **Behavior.** Decisive verbs (probe? generate? gate? delegate? orchestrate?). Branches (success/failure; converge/discard; PROCEED/BLOCK).
 - **Outputs.** Files written, agents invoked, user-facing shape, F2 one-line summary.
 - **Boundaries.** Read-only vs writing; what it refuses to touch; relation to neighbors (`/mol:spec` vs `/mol:note`, `/mol:debug` vs `/mol:impl`).
-- **Invoker class.** **User-invoked** (`disable-model-invocation: true` + `agents/openai.yaml` with `policy.allow_implicit_invocation: false`) when only the human should fire it and **no** sibling will auto-invoke it. **Model-invoked** (omit the flag; optional `allow_implicit_invocation: true`) when the model or another skill must reach it. **Invoker rule:** if skill A auto-invokes skill B, B is model-invoked. See `plugins/mol/rules/design-principles.md` § 2.5. Prefer a thin user entry + model-invoked body only when the same procedure needs both deliberate typing and auto-call (e.g. `/mol:grill` → `/mol:grilling`).
-- **Free-form tier (A–E).** For model-invoked skills, pick a tier from § 2.6 and bake **trigger phrases** (Chinese + English) plus when *not* to fire into `description` — that description is the always-on index card. Do not create a second skill file just for indexing.
+- **Form.** One verb = one skill (+ agents if needed). Never two skills for the same verb (no entry/body pair). Skill → skill only for a *different* verb.
+- **Invoker.** Default model-invoked. User-only (`disable-model-invocation: true` + yaml `allow_implicit_invocation: false`) only when no sibling/free-form may fire it. Auto-invoke targets must be model-invoked. See design-principles § 2.5.
+- **Free-form tier (A–E).** Put zh/en triggers + when-not in `description` (§ 2.6). Description is the index — do not add a second skill for indexing.
 
 Any unclear → **ask 1–2 targeted questions**. Never write with gaps.
 
@@ -137,14 +135,14 @@ Append one row to `plugins/<plugin>/README.md`'s skills table. Read the table fi
 
 Insert at bottom of the table, before the next non-table line. Edit nothing else in the README.
 
-### 8. Run `/mol-plugin:check`
+### 8. Run `/check`
 
-Invoke `/mol-plugin:check <plugin>` to confirm structural validation. Errors → fix before exiting.
+Invoke `/check <plugin>` to confirm structural validation. Errors → fix before exiting.
 
 ### 9. Suggest release follow-up
 
 If this skill should ship next release, tell user to run
-`/mol-plugin:release patch` (commit → push origin/fork → PR upstream →
+`/mol:release patch` (commit → push origin/fork → PR upstream →
 green checks → merge → `/mol:tag`). Don't run those — release timing is
 the user's call; never suggest `git push upstream`.
 
@@ -164,6 +162,6 @@ End with one-line F2 summary.
 - Resolved design (4-bullet recap of inputs / behavior / outputs / boundaries).
 - Plan: path + complete body preview.
 - Application: `created <path>` + one-line README row diff.
-- `/mol-plugin:check` verdict.
+- `/check` verdict.
 - Release follow-up prompt: one line, only if applicable.
 - Final summary (F2): one line.

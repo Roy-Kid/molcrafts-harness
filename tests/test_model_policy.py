@@ -13,7 +13,7 @@ Guards:
 
 Stdlib only: unittest + pathlib + re. Run with:
 
-    python plugins/mol-plugin/tests/test_model_policy.py
+    python tests/test_model_policy.py
 """
 
 from __future__ import annotations
@@ -22,8 +22,8 @@ import re
 import unittest
 from pathlib import Path
 
-# tests/ -> mol-plugin/ -> plugins/ -> <repo root>
-REPO_ROOT = Path(__file__).resolve().parents[3]
+# tests/ -> <repo root>
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 AGENTS_DIR = REPO_ROOT / "plugins" / "mol" / "agents"
 SKILLS_DIR = REPO_ROOT / "plugins" / "mol" / "skills"
@@ -212,7 +212,7 @@ class ModelPolicyTests(unittest.TestCase):
         release = _read(
             REPO_ROOT
             / "plugins"
-            / "mol-plugin"
+            / "mol"
             / "skills"
             / "release"
             / "SKILL.md"

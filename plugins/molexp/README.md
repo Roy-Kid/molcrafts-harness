@@ -1,6 +1,6 @@
 # molexp plugin
 
-Data-workspace tooling for **[molexp](https://github.com/MolCrafts)** — not the agent harness (`mol`) and not marketplace maintenance (`mol-plugin`).
+Data-workspace tooling for **[molexp](https://github.com/MolCrafts)** — not the agent harness (`mol`).
 
 Install when you work with experimental data directories and need them under molexp's four-tier layout:
 
@@ -29,4 +29,3 @@ Requires `molexp` importable in the environment (`pip install molexp`).
 | `mol` | Code project harness (spec / impl / review / git) |
 | `molexp` | **Experiment data** workspace adoption |
 | `molq` | Job queue lifecycle (molmcp) |
-| `mol-plugin` | This marketplace's scaffolding and release |

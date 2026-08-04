@@ -29,9 +29,10 @@ mol_project:
     coverage: "pytest --cov=src/molpy tests/"
   arch:
     style: layered
-    # Bootstrap default: Design preferences (OOP/primitives). Point at a
-    # richer "## Architecture" heading when layer-import rules live there;
-    # agents still always load "## Design preferences (default)" if present.
+    # Bootstrap default: Design preferences (OOP + cohesion/coupling iron
+    # law + primitives). Point at a richer "## Architecture" heading when
+    # layer-import rules live there; agents still always load
+    # "## Design preferences (default)" if present.
     rules_section: "## Design preferences (default)"
   doc:
     style: google
@@ -111,7 +112,7 @@ for the authoritative table):
 | Key              | Type   | Notes                                                             |
 |------------------|--------|-------------------------------------------------------------------|
 | `style`          | enum   | `layered` / `crate-graph` / `backend-pillars` / `package-tree` / `monorepo` — picks the dependency-rule template the architect agent applies |
-| `rules_section`  | string | Exact heading in CLAUDE.md (or a linked notes page) for layer/import rules. Bootstrap defaults this to `## Design preferences (default)` (OOP + primitive APIs). Projects with a separate layer map may set `## Architecture` instead; **`## Design preferences (default)` is still always loaded when present** by architect / implementer / spec-writer |
+| `rules_section`  | string | Exact heading in CLAUDE.md (or a linked notes page) for layer/import rules. Bootstrap defaults this to `## Design preferences (default)` (OOP + high cohesion/low coupling + primitive APIs). Projects with a separate layer map may set `## Architecture` instead; **`## Design preferences (default)` is still always loaded when present** by architect / implementer / spec-writer |
 
 ### `doc` (required, object)
 
@@ -169,6 +170,32 @@ Example:
 ci:
   config: .github/workflows/ci.yml
   local: "act push"
+```
+
+### `release` (optional, object) — delegated release hooks
+
+Used by `/mol:release`. Lets a repo whose version surface or pre-release gate
+is not a standard single crate/py/npm manifest delegate those two steps to
+**project-local hook skills**, while `/mol:release` keeps the generic
+chain (branch → commit → push fork → PR → green → merge → tag). Absent →
+`/mol:release` uses its built-in library behavior (crate/py/npm bump +
+dep/registry/docs gates), so ordinary libraries need no `release` block.
+
+| Key          | Type   | Notes                                                                                                   |
+|--------------|--------|---------------------------------------------------------------------------------------------------------|
+| `bump_skill` | string | Name of a project-local skill invoked as `Skill(<bump_skill>, <patch\|minor\|major>)`. It reads the current version, rewrites + stages every version field in the repo, and returns `old` → `new`. |
+| `gate_skill` | string | Name of a project-local skill invoked as `Skill(<gate_skill>)` for pre-release verification; its PASS / BLOCK verdict replaces the built-in §3 gates. |
+
+`molcrafts-harness` itself uses this: `bump_skill: release-bump` (bumps every
+plugin + marketplace version field via `scripts/bump_version.py`) and
+`gate_skill: check` (the marketplace structure + semantic + smoke gate).
+
+Example:
+
+```yaml
+release:
+  bump_skill: release-bump
+  gate_skill: check
 ```
 
 ### `style` (optional, mapping) — janitor knobs

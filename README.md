@@ -37,18 +37,19 @@ molcrafts-harness/
 │   │   ├── .codex-plugin/plugin.json
 │   │   ├── README.md
 │   │   └── skills/
-│   ├── molq/                         # molq job lifecycle via molmcp (jobs/submit/cancel)
-│   │   ├── .claude-plugin/plugin.json
-│   │   ├── .codex-plugin/plugin.json
-│   │   ├── README.md
-│   │   └── skills/
-│   └── mol-plugin/                   # marketplace-maintenance skills (counts live in manifests)
+│   └── molq/                         # molq job lifecycle via molmcp (jobs/submit/cancel)
 │       ├── .claude-plugin/plugin.json
 │       ├── .codex-plugin/plugin.json
 │       ├── README.md
-│       ├── hooks/hooks.json          # developer-only post-edit validation
-│       ├── scripts/                  # deterministic dual-runtime validation
-│       └── skills/                   # shared skills + one CODEX.md runtime adapter
+│       └── skills/
+├── scripts/                          # LLM-free repo tooling (CI-callable)
+│   ├── validate_repository.py        # deterministic dual-manifest validator
+│   └── bump_version.py               # release version bump across all manifests
+├── tests/                            # stdlib structural guards (CI runs these)
+├── CLAUDE.md                         # this repo is itself a mol* project
+├── .claude/
+│   ├── skills/                       # project-local maintenance: check, new-skill, release-bump
+│   └── notes/                        # passive project knowledge
 ├── LICENSE
 └── README.md
 ```
@@ -60,7 +61,12 @@ molcrafts-harness/
 | [`mol`](plugins/mol/README.md) | Day-to-day **code** project work (planner→generator→evaluator harness): bootstrap, spec, impl, review, git chain, …. Adapts via `mol_project:` frontmatter. |
 | [`molexp`](plugins/molexp/README.md) | **Experiment data** workspace tooling: `/molexp:adopt-workspace` lifts legacy result folders into molexp's Workspace→Project→Experiment→Run layout. |
 | [`molq`](plugins/molq/README.md) | **Job queue** via molmcp: `/molq:jobs` (list/status/logs/queue), `/molq:submit`, `/molq:cancel` (submit/cancel need `MOLMCP_MOLQ_SUBMIT=1`). |
-| [`mol-plugin`](plugins/mol-plugin/README.md) | Maintaining this marketplace: scaffold skills, unified `/mol-plugin:check`, and cut releases. |
+
+Maintaining the marketplace itself is not a plugin: this repo is a `mol*`
+project (`CLAUDE.md`) with project-local skills in `.claude/skills/`
+(`/check`, `/new-skill`, `/release-bump`) and deterministic tooling in
+`scripts/` + `tests/`. Release it with `/mol:release` like any other `mol*`
+repo.
 
 ## Install
 
@@ -72,9 +78,6 @@ molcrafts-harness/
 /plugin install molexp@molcrafts   # optional — experiment data workspaces
 /plugin install molq@molcrafts     # optional — job queue via molmcp
 ```
-
-`mol-plugin` is only needed if you are developing the plugins
-themselves; most users skip it.
 
 For local development, `/plugin marketplace add <path-to-this-checkout>`
 works too. Restart the session or `/reload-plugins` to pick up new

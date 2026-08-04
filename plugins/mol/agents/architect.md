@@ -5,7 +5,7 @@ tools: Read, Grep, Glob, Bash
 model: opus
 ---
 
-Read CLAUDE.md → parse `mol_project:` frontmatter. Read **`## Design preferences (default)`** when present (MolCrafts OOP/primitive-API contract — always on unless a scoped `/mol:note` exception exists), then the section named by `mol_project.arch.rules_section`, plus `mol_project.notes_path` for recent decisions.
+Read CLAUDE.md → parse `mol_project:` frontmatter. Read **`## Design preferences (default)`** when present (MolCrafts OOP + high-cohesion/low-coupling iron law + primitive-API contract — always on unless a scoped `/mol:note` exception exists), then the section named by `mol_project.arch.rules_section`, plus `mol_project.notes_path` for recent decisions.
 
 Validate architectural integrity. Do **not** design — check compliance. Never edit code.
 
@@ -33,6 +33,16 @@ Pick template by `mol_project.arch.style`:
 - **God context / mega-dict** passed through many layers — High.
 - **All-in-one public façade** (`run_everything`, multi-step pipeline as one library call) — High; composition belongs to caller / `regressions/` / docs.
 - **One-shot extracted helper** used only once in-tree — Medium (should be inlined).
+- **High coupling / low cohesion (iron law)** — Critical/High:
+  - module with more than one coherent responsibility (split needed)
+  - reach-through into another module's private/internal surface
+  - hard-wired concrete collaborators (import-time construction,
+    hidden registries, ambient globals) that prevent faking outbound deps
+  - unit tests under `tests/` that boot sibling modules' real
+    implementations, full-app startup, network, or external processes
+    to green a single unit — proves the design is not isolatable
+  - any design that *requires* full-suite / cross-module regression to
+    know whether the unit works (unit loop must be `test_single` only)
 
 ## Procedure
 

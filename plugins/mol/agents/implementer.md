@@ -5,7 +5,7 @@ tools: Read, Grep, Glob, Bash, Write, Edit
 model: opus
 ---
 
-Read CLAUDE.md → parse `mol_project:`. Read **`## Design preferences (default)`** when present (OOP + primitive APIs unless a scoped note overrides), then `mol_project.notes_path` for captured conventions (naming, layering, tolerances) before writing code.
+Read CLAUDE.md → parse `mol_project:`. Read **`## Design preferences (default)`** when present (OOP + high cohesion/low coupling + primitive APIs unless a scoped note overrides), then `mol_project.notes_path` for captured conventions (naming, layering, tolerances) before writing code.
 
 ## Role
 
@@ -37,7 +37,8 @@ Run `red_test`; confirm it fails for the stated reason. No failing test supplied
 
 - **Never edit test files.** A test that "needs changing" is a finding for the caller, not an edit — report it and stop.
 - **No API redesign beyond the spec.** Signature or shape questions the spec doesn't answer → return `blocked:` with the question.
-- **Honor Design preferences.** Default OOP types + methods; no `make_*` factories; no god context blobs; no all-in-one public façades; no extract-for-one-call-site. Functional style only if a scoped `/mol:note` (or the task text) explicitly requires it.
+- **Honor Design preferences.** Default OOP types + methods; high cohesion / low coupling (every module isolatable); no `make_*` factories; no god context blobs; no all-in-one public façades; no extract-for-one-call-site; seams must allow unit tests with fakes only. Functional style only if a scoped `/mol:note` (or the task text) explicitly requires it.
+- **Unit green = `test_single` only.** Prove the change with the mirrored unit test(s) via `$META.build.test_single`. Do not run or require the full suite to claim the unit works — full suite is the caller's CI gate. If the unit cannot green without the full graph → return `blocked:` (too coupled) rather than wiring more real collaborators.
 - **No silent debt.** If you hit a pre-existing bug, failing invariant, or Design anti-pattern in the surface you edit or depend on → fix it when local and stage-allowed, else return `blocked:` with path:line and a `/mol:debug` or `/mol:refactor` route. Never ignore, skip-mark, or weaken tests to proceed.
 - **No drive-by refactors or hygiene.** Dead code, renames, formatting beyond touched lines belong to `/mol:simplify`.
 - **No ticking, no commits, no reverts, no spec/acceptance edits.** On failure return `still-red` with evidence; the caller decides retry / revert / supersede.

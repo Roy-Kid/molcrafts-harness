@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Open a pull request from origin (fork) to upstream (canonical). Calls /mol:push first. Never land on org default without a PR. Auto-drafts title/body and creates the PR with no approval wait. Auto-invoked by /mol:release and /mol-plugin:release.
+description: Open a pull request from origin (fork) to upstream (canonical). Calls /mol:push first. Never land on org default without a PR. Auto-drafts title/body and creates the PR with no approval wait. Auto-invoked by /mol:release.
 argument-hint: "[<title>]"
 ---
 

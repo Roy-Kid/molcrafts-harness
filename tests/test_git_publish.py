@@ -5,12 +5,12 @@ Locks:
 - shared rule file exists with remotes + iron laws
 - /mol:push is origin-only and refuses upstream branch push
 - /mol:pr is fork → upstream and requires /mol:push first
-- /mol:release and /mol-plugin:release wait for green checks, no red merge
+- /mol:release waits for green checks, no red merge
 - neither release skill instructs a bare git push upstream for branches
 
 Stdlib only. Run with:
 
-    python plugins/mol-plugin/tests/test_git_publish.py
+    python tests/test_git_publish.py
 """
 
 from __future__ import annotations
@@ -19,9 +19,9 @@ import re
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(__file__).resolve().parents[1]
 MOL_SKILLS = REPO_ROOT / "plugins" / "mol" / "skills"
-MOL_PLUGIN_SKILLS = REPO_ROOT / "plugins" / "mol-plugin" / "skills"
+LOCAL_SKILLS = REPO_ROOT / ".claude" / "skills"
 RULES = REPO_ROOT / "plugins" / "mol" / "rules"
 
 _FORBID_MARKERS = (
@@ -121,48 +121,29 @@ class GitPublishContractTests(unittest.TestCase):
             if "--admin" in ln and "green" not in ln.lower() and "unless" not in ln.lower():
                 self.fail(f"unconditional --admin merge: {ln!r}")
 
-    def test_mol_plugin_release_mirrors_chain(self) -> None:
-        text = _read(MOL_PLUGIN_SKILLS / "release" / "SKILL.md")
-        self.assertIn("git-publish.md", text)
-        for needle in (
-            "/mol:push",
-            "/mol:pr",
-            "gh pr checks",
-            "/mol:tag",
-            "origin",
-            "upstream",
-            "pre-commit",
-            "PR-first",
-            "green",
-            '/mol:commit "release: v',
-        ):
-            self.assertIn(needle, text, f"mol-plugin:release must mention {needle!r}")
-        self.assertNotIn(
-            'git commit -m "release:',
+    def test_mol_release_documents_delegation(self) -> None:
+        text = _read(MOL_SKILLS / "release" / "SKILL.md")
+        for needle in ("bump_skill", "gate_skill", "mol_project.release"):
+            self.assertIn(
+                needle,
+                text,
+                f"mol:release must document the {needle!r} delegation contract",
+            )
+        self.assertRegex(
             text,
-            "must not inline git commit",
-        )
-        self.assertEqual(
-            _instructs_cmd(text, "git push upstream"),
-            [],
-            "mol-plugin:release must not instruct branch push to upstream",
+            r"built-in|fall\s*back|fallback",
+            "mol:release must document the built-in fallback when no hook skills are declared",
         )
 
     def test_check_audits_git_publish(self) -> None:
-        text = _read(MOL_PLUGIN_SKILLS / "check" / "SKILL.md")
+        text = _read(LOCAL_SKILLS / "check" / "SKILL.md")
         self.assertIn("git-publish.md", text)
         self.assertIn("Git publish", text)
         self.assertIn("origin", text)
         self.assertIn("upstream", text)
 
-    def test_codex_adapter_preserves_pr_first(self) -> None:
-        text = _read(MOL_PLUGIN_SKILLS / "CODEX.md")
-        self.assertIn("git-publish.md", text)
-        self.assertIn("origin", text)
-        self.assertIn("upstream", text)
-
     def test_readme_documents_pr_first(self) -> None:
-        text = _read(REPO_ROOT / "plugins" / "mol-plugin" / "README.md")
+        text = _read(REPO_ROOT / "plugins" / "mol" / "README.md")
         self.assertIn("git-publish.md", text)
         self.assertIn("origin", text)
         self.assertIn("upstream", text)

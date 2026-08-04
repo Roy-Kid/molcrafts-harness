@@ -74,7 +74,7 @@ For each unchecked task, in order:
 
 ### 2a. TDD (RED)
 
-First **Write failing tests** task → delegate to `tester` agent (write-mode). Unit tests **only** under `tests/`, path mirroring `src/` (`src/foo/boo.py` → `tests/test_foo/test_boo.py`), types mirrored (`FooClass` → `TestFooClass`), **single-function** tests — no e2e under `tests/`. Categories: basics, edge cases, immutability, domain validation (if `$META.science.required`) with hard-coded goldens. Run `$META.build.test_single`; confirm red. **Tick immediately.**
+First **Write failing tests** task → delegate to `tester` agent (write-mode). Unit tests **only** under `tests/`, path mirroring `src/` (`src/foo/boo.py` → `tests/test_foo/test_boo.py`), types mirrored (`FooClass` → `TestFooClass`), **single-function** tests of **one module** — no e2e under `tests/`. Unit green is `$META.build.test_single` only (iron law: high cohesion / low coupling — not full suite). Categories: basics, edge cases, immutability, domain validation (if `$META.science.required`) with hard-coded goldens. Run `$META.build.test_single`; confirm red. **Tick immediately.**
 
 ### 2b. Implement (GREEN)
 

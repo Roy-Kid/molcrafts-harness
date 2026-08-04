@@ -1,6 +1,6 @@
 ---
 name: push
-description: Push current branch to origin (fork) after CI-parity pre-commit + /mol:ship push. Never pushes to upstream — land via /mol:pr. Auto-fix loop; never force-push. --no-verify only with explicit user consent. Auto-invoked by /mol:pr, /mol:release, /mol-plugin:release.
+description: Push current branch to origin (fork) after CI-parity pre-commit + /mol:ship push. Never pushes to upstream — land via /mol:pr. Auto-fix loop; never force-push. --no-verify only with explicit user consent. Auto-invoked by /mol:pr, /mol:release.
 argument-hint: "[<branch>]"
 ---
 

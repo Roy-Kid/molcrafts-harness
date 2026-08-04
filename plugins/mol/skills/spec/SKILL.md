@@ -10,7 +10,7 @@ argument-hint: "<feature description>"
 
 Read CLAUDE.md → parse `mol_project:` (`$META`); else emit adoption hint and stop. Resolve `$META.specs_path` (default `.claude/specs/`); create dir if missing.
 
-Produces `<slug>.md` (design) + `<slug>.acceptance.md` (binding "done" contract per `plugins/mol/rules/evaluator-protocol.md`). After persist, **always** stress-tests the written design via `/mol:grilling` (spec-audit). `/mol:impl` refuses without both files; deletes both when done. Specs live under `.claude/specs/` — never `docs/` or `.claude/notes/`.
+Produces `<slug>.md` (design) + `<slug>.acceptance.md` (binding "done" contract per `plugins/mol/rules/evaluator-protocol.md`). After persist, **always** stress-tests via `/mol:grill` (spec-audit). `/mol:impl` refuses without both files; deletes both when done. Specs live under `.claude/specs/` — never `docs/` or `.claude/notes/`.
 
 ## Procedure
 
@@ -52,25 +52,23 @@ Persist immediately — **no approval prompt, no waiting**:
 
 Then show spec body + acceptance exactly as written. Call out: librarian reuse candidates and how the Design's Reuse decision resolved each (first), criteria from Testing strategy, items deliberately not turned into criteria, supersede diff if any.
 
-Tell the user: *"persisted — now entering `/mol:grilling` (spec-audit) before ready-for-impl."* Spec is on disk as `approved`, but Step 3.5 may supersede it.
+Tell the user: *"persisted — entering `/mol:grill` (spec-audit)."* Files are `approved`; Step 3.5 may supersede.
 
-Post-persist tweaks the user requests **before** grilling finishes → apply in place. Material design changes mid-flight → fold into the audit / supersede path.
+Pre-audit tweaks → apply in place. Material redesign mid-flight → fold into supersede path.
 
 ### 3.5 Audit grill → supersede if needed
 
-**Mandatory.** Auto-invoke `/mol:grilling` in **spec-audit** mode with: `slug`, paths to the written spec + acceptance, and a short pointer that the Design/Tasks/acceptance surface is under test. Use the Skill tool (Claude) or read-and-execute `../grilling/SKILL.md` (Codex). Never call user-only `/mol:grill`.
+**Mandatory.** Auto-invoke `/mol:grill` **spec-audit** with slug + written paths + surface under test (Skill tool / `../grill/SKILL.md`). Chain → grill each sub-spec in order.
 
-Chain of sub-specs → grill each sub-spec in chain order (or the first incomplete one if resuming); do not skip.
-
-When `/mol:grilling` returns:
+When `/mol:grill` returns:
 
 | `audit_result` | Action |
 |---|---|
-| `clean` | Optional: set non-binding frontmatter `grilled: true` on the spec file(s). Proceed to Step 4. |
-| `supersede_needed` | Re-invoke `spec-writer` with `conflict_decision: supersede:<slug>`, `request` = original request + Decisions log + supersede payload. On `Status: ok`, overwrite both files + INDEX (same as Step 3). Set `grilled: true` after successful supersede. If `blocked`, surface items and stop with files left as last good persist. |
-| redirected / under-formed | Leave last persisted files as `approved`. Surface Open list + reason. Do **not** delete. User may re-run `/mol:grilling mode:spec-audit <slug>` or re-spec. |
+| `clean` | Optional non-binding `grilled: true`. Step 4. |
+| `supersede_needed` | Re-invoke `spec-writer` (`conflict_decision: supersede:<slug>`, request = original + Decisions + payload). On `ok`, overwrite both files + INDEX. Set `grilled: true`. On `blocked`, stop with last good persist. |
+| redirected / under-formed | Leave `approved`. Surface Open list. User may re-run `/mol:grill mode:spec-audit <slug>` or re-spec. |
 
-**Grilling remains read-only** — this skill owns all supersede writes.
+Grill is read-only — this skill owns supersede writes.
 
 ### 4. Report
 
@@ -86,6 +84,6 @@ End with one-line summary after impl-all returns (or after park).
 
 - **Chinese input** → `spec-writer` produces body in Chinese; frontmatter keys, INDEX entry, and Tasks verb-prefixes stay English for downstream tooling.
 - **Drafting is delegated** to `spec-writer` to keep parent context free for conversation. Triage, persistence, INDEX upkeep, and post-persist supersede stay here; first persist is automatic — never wait for approval. See `plugins/mol/rules/agent-design.md`.
-- **Always auto-invoke `/mol:grilling` after persist.** Do not hand the user a "ready for impl" F2 before the audit settles.
-- **After grill settles clean (or supersede applied clean):** auto-invoke `/mol:impl-all <slug-or-prefix>` so implementation runs end-to-end without a second human kick. Parked grill redirect → do not impl.
-- **Spec lifecycle** (`draft` → `approved` → `in-progress` → `code-complete` → `done`) is defined in `plugins/mol/rules/evaluator-protocol.md`. `grilled: true` is advisory metadata, not a lifecycle state.
+- Always auto-invoke `/mol:grill` after persist before ready-for-impl F2.
+- Clean / superseded clean → auto `/mol:impl-all`; parked redirect → do not impl.
+- Lifecycle states: `plugins/mol/rules/evaluator-protocol.md`. `grilled: true` is advisory only.
